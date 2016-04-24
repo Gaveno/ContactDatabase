@@ -17,6 +17,8 @@ namespace ContactDatabase {
         // Constants
         static const int NUM_FIELDS = 13;
 
+        static const string FIELD_NAMES[];
+
         //----------------------------------------- Affiliates -----------------------------------------//
         class Affiliates {
         public:
@@ -68,6 +70,7 @@ namespace ContactDatabase {
 
         //  Setters
         std::istream &loadFromStream(std::istream &is);
+        void setField(unsigned int index, string entry);
         void setID(unsigned int id) { __id = id; }
         void setFirstName(string name) { __firstName = name; }
         void setLastName(string name) { __lastName = name; }
@@ -85,6 +88,7 @@ namespace ContactDatabase {
         void addAffiliate(const Affiliates &aff);
 
         //  Accessors - Constant
+        std::ostream &printDetailed(std::ostream &os) const;
         const string &getField(unsigned int index) const;
         const unsigned int getID() const { return __id; }
         const string &getFirstName() const { return __firstName; }
@@ -103,6 +107,7 @@ namespace ContactDatabase {
         unsigned int getNumAffiliates() const { return __affiliates.size(); }
         const Affiliates &getAffiliate(unsigned int index) const;
         const string &operator[](unsigned int index) const;
+        void printNames() const;
 
         //  Accessors - Non-Constant
         string &getField(unsigned int index);
@@ -159,6 +164,17 @@ namespace ContactDatabase {
         string &convertEmail(string &email);
         string getWordN(string str, unsigned int n, char c = ' ', unsigned int pos = 0);
         int getNumChars(string str, char c);
+    };
+
+    class SortContacts {
+    public:
+        SortContacts() : __index(0) { }
+        SortContacts(unsigned int index) : __index(index) { }
+
+        bool operator()(Contacts &a, Contacts &b) { return (a.getField(__index) < b.getField(__index)); }
+
+    private:
+        unsigned int __index;
     };
 }
 

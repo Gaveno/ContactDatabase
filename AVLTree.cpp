@@ -287,7 +287,8 @@ void AVLTree::printBalance(AVLNode* node) {
 
 std::vector<ItemType> &AVLTree::addVector(AVLNode *node, std::vector<ItemType> &vec) {
     if ( node != nullptr ) {
-        vec.push_back(node->data);
+        if (node->data.getFirstName() != "NULL")
+            vec.push_back(node->data);
         addVector(node->left, vec);
         addVector(node->right, vec);
     }

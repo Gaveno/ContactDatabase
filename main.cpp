@@ -10,18 +10,8 @@ using namespace ContactDatabase;
 
 int main() {
 
-    fstream file;
-    file.open("contacts.txt");
-    ContactList cl;
-
-
-    if (file) {
-        file >> cl;
-    }
-
-    file.close();
-
-    cout << cl;
+    ContactList cl("contacts.txt");
+    cl.menuMain();
 
     return 0;
 }

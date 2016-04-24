@@ -15,6 +15,13 @@ using std::endl;
 namespace ContactDatabase {
 
     unsigned int Contacts::__idGen = 0;
+    const string Contacts::FIELD_NAMES[] = {
+            "First Name", "Middle Name", "Last Name",
+            "Company Name", "Home Phone", "Office Phone",
+            "Email", "Mobile Number", "Street Address",
+            "City", "State", "Zip Code", "Country",
+            "Affiliates"
+    };
 
     Contacts::Contacts() {
         __id = ++__idGen;
@@ -44,6 +51,27 @@ namespace ContactDatabase {
     }
 
     //  Setters
+    void Contacts::setField(unsigned int index, string entry) {
+        if (index >= NUM_FIELDS) throw ExOutOfBounds("Contacts", index, NUM_FIELDS);
+
+        switch (index) {
+            case 0: __firstName = entry; break;
+            case 1: __middleName = entry; break;
+            case 2: __lastName = entry; break;
+            case 3: __companyName = entry; break;
+            case 4: __homePhone = entry; break;
+            case 5: __officePhone = entry; break;
+            case 6: __email = entry; break;
+            case 7: __mobileNumber = entry; break;
+            case 8: __streetAddress = entry; break;
+            case 9: __city = entry; break;
+            case 10: __state = entry; break;
+            case 11: __zipCode = entry; break;
+            case 12: __country = entry; break;
+            default: break;
+        }
+    }
+
     void Contacts::setHomePhone(string number) {
         __homePhone = convertNumber(number);
     }
@@ -65,6 +93,20 @@ namespace ContactDatabase {
     }
 
     //  Getters - Const
+    std::ostream &Contacts::printDetailed(std::ostream &os) const {
+        // Print out contact information
+        for (unsigned int i = 0; i < NUM_FIELDS; ++i) {
+            os << FIELD_NAMES[i] << ": " << getField(i) << "\n";
+        }
+
+        // Print out affiliate information is exists
+        for (auto it = __affiliates.begin(); it != __affiliates.end(); ++it) {
+            os << *it;
+        }
+
+        return os;
+    }
+
     const Contacts::Affiliates &Contacts::getAffiliate(unsigned int index) const {
         if (index >= __affiliates.size()) throw ExOutOfBounds("Affiliates", index, __affiliates.size());
 
@@ -111,6 +153,10 @@ namespace ContactDatabase {
             case 12: return __country;
             default: return __country;
         }
+    }
+
+    void Contacts::printNames() const {
+        std::cout << getFirstName() << " " << getLastName() << ", " << getCompanyName();
     }
 
     //  Getters - Non-Const
@@ -244,7 +290,11 @@ namespace ContactDatabase {
     std::istream &Contacts::loadFromStream(std::istream &is) {
         string line;
         getline(is, line);
-        while (!is.eof() && line[0] != '|' && line.size() > 2) {
+
+        //if (is.eof()) std::cout << "Warning... Empty contact file." << std::endl;
+        //if (line.size() != 9) std::cout << "Warning... Corrupt contact file." << std::endl;
+
+        while (!is.eof() && line[0] != '|' && line.size() == 9 && line[0] != ' ') {
             setID((unsigned) std::stoi(line));
             for (unsigned int i = 0; i < Contacts::NUM_FIELDS; ++i) {
                 getline(is, line);
