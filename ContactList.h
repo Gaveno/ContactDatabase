@@ -81,6 +81,9 @@ namespace ContactDatabase {
 
         std::vector<ItemType> &displaySorted(std::vector<ItemType> &vec, unsigned int field = 0);
         std::string padWidth(string str, unsigned int w);
+
+        // Save type 0 is __lastFile for filename 1 is for new name
+        void save(int type = 0);
     };
 }
 

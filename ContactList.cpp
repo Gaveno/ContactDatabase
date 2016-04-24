@@ -233,13 +233,37 @@ namespace ContactDatabase {
      * or a new filename to save contacts to
      */
     void ContactList::menuSave() {
-        
+        std::cout << "------Save Menu------\n";
+        if (__lastFile != "NULL") {
+            std::cout << "1) Save (same name)\n";
+            std::cout << "2) Save as (new name)\n";
+            std::cout << "3) <- Main Menu\n";
+        }
+        else {
+            std::cout << "1) Save as (new name)\n";
+            std::cout << "2) <- Main Menu\n";
+        }
+
+        int input = 0;
+        cin >> input;
+
+        if (__lastFile == "NULL") input++;
+
+        switch (input) {
+            case 1: save( ); break;
+            case 2: save(1); break;
+            default: return;
+
+        }
     }
 
     void ContactList::loadContacts(std::string fname) {
         std::ifstream file(fname);
 
         if (file) {
+            if (__tree->size() > 0) {
+                __tree->clearTree();
+            }
             while (!file.eof()) {
                 Contacts c;
                 file >> c;
@@ -255,8 +279,9 @@ namespace ContactDatabase {
         std::vector<ItemType> vec;
 
         cl.__tree->addVector(vec);
+        std::sort(vec.begin(), vec.end());
 
-        os << "Vector Size: " << vec.size() << std::endl;
+        //os << "Vector Size: " << vec.size() << std::endl;
 
         for (auto &e : vec) {
             os << e << "|" << std::endl;
@@ -307,6 +332,25 @@ namespace ContactDatabase {
         }
 
         return temp;
+    }
+
+    void ContactList::save(int type) {
+        if (type == 1 || __lastFile == "NULL") {
+            std::string entry;
+            std::cout << "Enter a filename to save the contact list as: (.txt will be appended to the end)\n";
+            cin >> entry;
+            entry += ".txt";
+            __lastFile = entry;
+        }
+
+        std::ofstream file(__lastFile);
+
+        if (file) {
+            file << *this;
+        }
+        else {
+            std::cout << "Error: There was a problem saving to this location.\n";
+        }
     }
 
 }
