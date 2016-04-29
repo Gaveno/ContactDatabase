@@ -54,8 +54,23 @@ public:
 
     /*
      * Adds all the nodes following the starting node to a vector
+     * as long as they meet requirements of search
      */
-    std::vector<ItemType> &addVector(std::vector<ItemType> &vec);
+    std::vector<ItemType> &addVector(std::vector<ItemType> &vec,
+                                     std::string item = "NULL",
+                                     FieldSearch field = FieldSearch::ALL,
+                                     SearchMode mode = SearchMode::EXACT
+    );
+
+    /*
+     * Adds all the nodes following the starting node to a new tree
+     * as long as they meet requirements of search
+     */
+    AVLTree &addTree(AVLTree &tree,
+                                     std::string item = "NULL",
+                                     FieldSearch field = FieldSearch::ALL,
+                                     SearchMode mode = SearchMode::EXACT
+    );
 
     /*
      * Insert the provided data value into this AVL tree. As the value is
@@ -149,7 +164,23 @@ protected:
     /*
      * Recursive support function for to add nodes to a vector.
      */
-    std::vector<ItemType> &addVector(AVLNode *node, std::vector<ItemType> &vec);
+    std::vector<ItemType> &addVector(AVLNode *node,
+                                     std::vector<ItemType> &vec,
+                                     std::string item = "NULL",
+                                     FieldSearch field = FieldSearch::ALL,
+                                     SearchMode mode = SearchMode::EXACT
+    );
+
+    /*
+     * Recursive support function for to add nodes to a new tree.
+     */
+    AVLTree &addTree(
+            AVLNode *node,
+            AVLTree &tree,
+            std::string item = "NULL",
+            FieldSearch field = FieldSearch::ALL,
+            SearchMode mode = SearchMode::EXACT
+    );
 
     /*
      * Recursive support function. Returns the height of the sub-tree starting

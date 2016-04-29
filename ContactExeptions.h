@@ -21,8 +21,8 @@ namespace ContactDatabase {
             return os;
         }
 
-        std::ostream &operator<<(std::ostream &os) {
-            print(os);
+        friend std::ostream &operator<<(ExEmptyTree &ex, std::ostream &os) {
+            ex.print(os);
             return os;
         }
 

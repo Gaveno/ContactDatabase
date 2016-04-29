@@ -7,8 +7,10 @@
 #include <vector>
 #include <algorithm>
 #include <iomanip>
+#include <sstream>
 #include "ContactList.h"
 #include "Contacts.h"
+#include "ContactExeptions.h"
 
 namespace ContactDatabase {
 
@@ -29,28 +31,32 @@ namespace ContactDatabase {
     /*
      * Main menu
      * 1) Display Contacts
-     * 2) Add Contact
-     * 3) Load Contacts
-     * 4) Save Contacts
-     * 5) Exit
+     * 2) Search Contacts
+     * 3) Add Contact
+     * 4) Load Contacts
+     * 5) Save Contacts
+     * 6) Exit
      */
     void ContactList::menuMain() {
         int input = 0;
         while (input != 5) {
-            std::cout << "\n------Main Menu------" << std::endl;
+            std::cout << "\n------ Main Menu ------" << std::endl;
             std::cout << "1) Display Contacts" << std::endl;
-            std::cout << "2) Add Contact" << std::endl;
-            std::cout << "3) Load Contacts" << std::endl;
-            std::cout << "4) Save Contacts" << std::endl;
-            std::cout << "5) Exit" << std::endl;
-            cin >> input;
+            std::cout << "2) Search Contacts" << std::endl;
+            std::cout << "3) Add Contact" << std::endl;
+            std::cout << "4) Load Contacts" << std::endl;
+            std::cout << "5) Save Contacts" << std::endl;
+            std::cout << "6) Exit" << std::endl;
+            //cin >> input;
+            input = getNumbers(1, 6);
 
             switch (input) {
                 case 1: menuDisplay(); break;
-                case 2: menuAddContact(); break;
-                case 3: menuLoad(); break;
-                case 4: menuSave(); break;
-                case 5: return;
+                case 2: menuSearch(); break;
+                case 3: menuAddContact(); break;
+                case 4: menuLoad(); break;
+                case 5: menuSave(); break;
+                case 6: return;
                 default: break;
             }
         }
@@ -76,7 +82,7 @@ namespace ContactDatabase {
         }
 
         while (input != 4) {
-            std::cout << "\n------Display Menu------" << std::endl;
+            std::cout << "\n------ Display Menu ------" << std::endl;
             std::cout << "1) Display all contacts"  << std::endl;
             std::cout << "2) Sort and display all"  << std::endl;
             std::cout << "3) Search and display"    << std::endl;
@@ -88,12 +94,13 @@ namespace ContactDatabase {
                 std::cout << "5) <- Main Menu" << std::endl;
             }
 
-            cin >> input;
+            //cin >> input;
+            input = getNumbers(1, 5);
 
             switch (input) {
                 case 1:
                     if (!first) vec.clear();    // Clear previous results
-                    displaySorted(vec);         // Sort and display, loading for next menu iteration
+                    displaySorted(*__tree, vec);         // Sort and display, loading for next menu iteration
                     break;
 
                 case 4: if (first) {
@@ -102,7 +109,8 @@ namespace ContactDatabase {
                     else {  // Modify contact after first iteration
                         unsigned int row;
                         std::cout << "Enter contact row number to modify:\n";
-                        cin >> row;
+                        //cin >> row;
+                        row = getNumbers(1, vec.size());
                         row--;
                         if (row < vec.size()) {
                             menuModifyContact(vec[row]);
@@ -124,11 +132,150 @@ namespace ContactDatabase {
     }
 
     /*
+     * Search Contacts Menu
+     * Gets a field to search through
+     * and a string to search for
+     * also asks for the mode of search
+     * exact, or contains
+     */
+    void ContactList::menuSearch() {
+        // Make sure list is non-empty
+        if (__tree->size() == 0) {
+            std::cout << "\nEmpty contact list!" << std::endl;
+            std::cout << "Load a list from a file," << std::endl;
+            std::cout << "or add at least one contact\nbefore performing this action!\n\n";
+            return;
+        }
+
+        // Menu options
+        enum Option {
+            SEARCH=1, STRING, FIELD, MODE, EDIT, EXIT
+        };
+
+        // Search arguments
+        FieldSearch field = FieldSearch::ALL;
+        SearchMode mode = SearchMode::EXACT;
+        std::string item = "NULL";
+
+        // Tree with search results
+        AVLTree stree(*__tree);
+        vector<ItemType> vec;
+
+        // Menu option selected
+        unsigned int input = 0;
+
+        while (input != Option::EXIT) {
+            if (__tree->size() == stree.size())
+                std::cout << "\n------ Search Menu ------" << std::endl;
+            else
+                std::cout << "\n------ Sub-Search Menu ------" << std::endl;
+            std::cout << Option::SEARCH << ") Search" << std::endl;
+            std::cout << Option::STRING << ") Enter a search term" << std::endl;
+            std::cout << Option::FIELD << ") Select field to search" << std::endl;
+            std::cout << Option::MODE << ") Select search mode" << std::endl;
+            if (__tree->size() != stree.size())
+                std::cout << Option::EDIT << ") Modify Contact" << std::endl;
+            std::cout << Option::EXIT << ") <- Main Menu" << std::endl;
+
+            //cin >> input;
+            input = getNumbers(Option::SEARCH, Option::EXIT);
+
+            switch (input) {
+                case (unsigned int)Option::SEARCH: {
+                    AVLTree tmp(stree);
+                    stree.clearTree();
+                    try {
+                        tmp.addTree(stree, item, field, mode);
+                    }
+                    catch (ContactDatabase::ExEmptyTree &ex) {
+                        std::cerr << "Exception thrown: ";
+                        ex.print(std::cerr);
+                        std::cerr << std::endl;
+                    }
+                    if (stree.size() > 0) {
+                        vec.clear();
+                        displaySorted(stree, vec);
+                    }
+                    else {
+                        std::cout << "\n\nSearch produced no results!\n\n";
+                        __tree->addTree(stree);
+                    }
+                }
+                break;
+
+                case (unsigned int)Option::STRING: {
+                    std::cout << "\nEnter a word or phrase to search for:\n";
+                    //getline(cin, item, '\n');
+                    item = getWords();
+                }
+                break;
+
+                case (unsigned int)Option::FIELD: {
+                    std::cout << "\nEnter a field to search in:\n";
+                    std::cout << "------------------------------------------------------";
+                    for (int i = 0; i < Contacts::NUM_FIELDS; ++i) {
+                        if (i % 3 == 0) std::cout << std::endl;
+
+                        string o = to_string(i + 1) + ") " + Contacts::FIELD_NAMES[i];
+                        std::cout << padWidth(o, 20);
+                    }
+                    std::cout << (Contacts::NUM_FIELDS + 1) << ") ALL\n";
+                    //cin >> input;
+                    input = getNumbers(0, Contacts::NUM_FIELDS + 1);
+                    if (input == (Contacts::NUM_FIELDS + 1)) {
+                        field == FieldSearch::ALL;
+                    }
+                    else {
+                        input--;
+                        field = (FieldSearch) input;
+                    }
+                }
+                break;
+
+                case (unsigned int)Option::MODE: {
+                    std::cout << "\nEnter a mode to search by:\n";
+                    std::cout << "1) Exact\n2) Contains\n";
+                    //cin >> input;
+                    input = getNumbers(1, 2);
+                    input--;
+                    switch (input) {
+                        case 0: mode = SearchMode::EXACT; break;
+                        case 1: mode = SearchMode::CONTAINS; break;
+                        default: break;
+                    }
+                }
+                break;
+
+                case (unsigned int) Option::EDIT:
+                    if (vec.empty()) break;
+                {
+                    unsigned int row;
+                    std::cout << "Enter contact row number to modify:\n";
+                    //cin >> row;
+                    row = getNumbers(1, vec.size());
+                    row--;
+                    if (row < vec.size()) {
+                        menuModifyContact(vec[row]);
+                        //input = 0;
+                    }
+                    else
+                        std::cout << "Error: Row #" << row << " does not exist!" << std::endl;
+                }
+                break;
+
+                default: break;
+            }
+        }
+    }
+
+    /*
      * Add Contact Menu
      * Walks the user through creating a new
      * contact.
      */
     void ContactList::menuAddContact() {
+        ContactDatabase::Contacts nc;
+        menuModifyContact(nc);
 
     }
 
@@ -139,7 +286,7 @@ namespace ContactDatabase {
     void ContactList::menuModifyContact(Contacts &cont) {
         Contacts original = cont;
         unsigned int input = 0;
-        while (input != cont.NUM_FIELDS) {
+        while (input != (cont.NUM_FIELDS + 1)) {
             // Display menu
             std::cout << "\n------Modify Contact------" << std::endl;
 
@@ -156,10 +303,11 @@ namespace ContactDatabase {
                 std::cout << padWidth(str, 20);
             }
             std::cout << padWidth("14) Remove Contact", 20);
-            std::cout  << "\n" << (15) << ") <- Main Menu" << std::endl;
+            std::cout  << "\n" << (15) << ") Back" << std::endl;
 
             // Get selection
-            cin >> input;
+            //cin >> input;
+            input = getNumbers(1, 16);
             input--;
             //if (input == cont.NUM_FIELDS)
                 //return; // Exit if selected
@@ -168,10 +316,20 @@ namespace ContactDatabase {
             if (input < cont.NUM_FIELDS) {
                 // Sub menu for new entry
                 std::cout << "\n------Current Entry------" << std::endl;
-                std::cout << cont.FIELD_NAMES[input] << ": " << cont.getField(input) << std::endl;
+                std::cout << cont.FIELD_NAMES[input] << ": ";
+                if (cont.getField(input) == "NULL")
+                    std::cout << "<Empty>";
+                else
+                    std::cout << cont.getField(input);
+                std::cout << std::endl;
                 std::cout << "Please enter a new entry for field: " << cont.FIELD_NAMES[input] << std::endl;
                 string entry;
-                cin >> entry;
+                //cin >> entry;
+                entry = getWords();
+                while (entry == "NULL") {
+                    std::cout << "Cannot be 'NULL'. Please re-enter:\n";
+                    entry = getWords();
+                }
 
                 if (entry.size() == 0) entry = "NULL";
 
@@ -184,7 +342,8 @@ namespace ContactDatabase {
                     cont.printNames();
                     std::cout << "?\nType 'YES' exactly as shown to delete this contact\nThis cannot be undone!\n";
                     string entry;
-                    cin >> entry;
+                    //cin >> entry;
+                    entry = getWords();
                     if (entry == "YES") {
                         __tree->remove(cont);
                         std::cout << "! Contact Deleted !" << std::endl;
@@ -197,8 +356,13 @@ namespace ContactDatabase {
             }
         }
 
-        __tree->remove(original);
-        __tree->insert(cont);
+        if (cont.getFirstName() != "NULL") {
+            __tree->remove(original);
+            __tree->insert(cont);
+        }
+        else {
+            std::cout << "\n\nFirst name cannot be 'NULL'\nContact not saved!\n\n";
+        }
     }
 
     /*
@@ -207,24 +371,14 @@ namespace ContactDatabase {
      */
     void ContactList::menuLoad() {
         std::string fname = "NULL";
-        bool loaded = false;
-        while (!loaded) {
-            std::cout << "------Load Menu------" << std::endl;
-            std::cout << "Enter the name of a\nfile to load:" << std::endl;
+        std::cout << "------Load Menu------" << std::endl;
+        std::cout << "Enter the name of a\nfile to load:" << std::endl;
 
-            cin >> fname;
+        //cin >> fname;
+        fname = getWords();
 
-            std::ifstream file(fname);
-            if (file) {
-                // file is loaded
-                file >> *this;
-                loaded = true;
-            }
-            else {
-                std::cout << "Error: Failed to open file '" << fname << "'" << std::endl;
-                return;
-            }
-        }
+        // file is loaded
+        loadContacts(fname);
     }
 
     /*
@@ -233,6 +387,7 @@ namespace ContactDatabase {
      * or a new filename to save contacts to
      */
     void ContactList::menuSave() {
+        int numOptions = 3;
         std::cout << "------Save Menu------\n";
         if (__lastFile != "NULL") {
             std::cout << "1) Save (same name)\n";
@@ -240,19 +395,21 @@ namespace ContactDatabase {
             std::cout << "3) <- Main Menu\n";
         }
         else {
-            std::cout << "1) Save as (new name)\n";
+            numOptions = 2;
+            std::cout << "1) Save\n";
             std::cout << "2) <- Main Menu\n";
         }
 
         int input = 0;
-        cin >> input;
+        //cin >> input;
+        input = getNumbers(1, numOptions);
 
         if (__lastFile == "NULL") input++;
 
         switch (input) {
             case 1: save( ); break;
             case 2: save(1); break;
-            default: return;
+            default: break;
 
         }
     }
@@ -264,10 +421,16 @@ namespace ContactDatabase {
             if (__tree->size() > 0) {
                 __tree->clearTree();
             }
-            while (!file.eof()) {
-                Contacts c;
-                file >> c;
-                __tree->insert(c);
+            try {
+                while (!file.eof()) {
+                    Contacts c;
+                    file >> c;
+                    __tree->insert(c);
+                }
+            }
+            catch (...) {
+                std::cerr << "\nError in file...\nFile not loaded." << std::endl;
+                __tree->clearTree();
             }
             if (__tree->size() > 0) {
                 __lastFile = fname;
@@ -305,13 +468,15 @@ namespace ContactDatabase {
         return is;
     }
 
-    std::vector<ItemType> &ContactList::displaySorted(std::vector<ItemType> &vec, unsigned int field) {
-        __tree->addVector(vec);
+    std::vector<ItemType> &ContactList::displaySorted(AVLTree &tree, std::vector<ItemType> &vec, unsigned int field) {
+        tree.addVector(vec);
 
         SortContacts s(field);
 
         // Sort based on first name by default
         std::sort(vec.begin(), vec.end(), s);
+
+        std::cout << "------ Contact List ------" << std::endl;
 
         int i = 1;
         for (auto &e : vec) {
@@ -338,7 +503,8 @@ namespace ContactDatabase {
         if (type == 1 || __lastFile == "NULL") {
             std::string entry;
             std::cout << "Enter a filename to save the contact list as: (.txt will be appended to the end)\n";
-            cin >> entry;
+            //cin >> entry;
+            entry = getWords();
             entry += ".txt";
             __lastFile = entry;
         }
@@ -351,6 +517,36 @@ namespace ContactDatabase {
         else {
             std::cout << "Error: There was a problem saving to this location.\n";
         }
+    }
+
+    string ContactList::getWords() {
+        string word;
+        getline(cin, word, '\n');
+        while (word.size() < 1) {
+            getline(cin, word, '\n');
+        }
+
+        return word;
+    }
+
+    unsigned int ContactList::getNumbers(int from, int to) {
+        string word;
+        int num = 999999;
+        //getline(cin, word, '\n');
+        while (word.size() < 1 || num < from || num > to) {
+            getline(cin, word, '\n');
+            try {
+                num = stoi(word);
+            }
+            catch(...) {
+                num = -1;
+            }
+            if (num < from || num > to) {
+                std::cout << "Please enter a number between " << from << " and " << to << ":\n";
+            }
+        }
+
+        return (unsigned ) num;
     }
 
 }

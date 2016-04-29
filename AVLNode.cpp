@@ -37,8 +37,10 @@ AVLNode::AVLNode(ItemType data, AVLNode* left, AVLNode* right, int balance) {
 }
 
 AVLNode::~AVLNode() {
-    delete this->left;
-    delete this->right;
+    if (this->left != nullptr)
+        delete this->left;
+    if (this->right != nullptr)
+        delete this->right;
 }
 
 void AVLNode::setData(ItemType data) {

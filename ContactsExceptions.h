@@ -37,6 +37,24 @@ namespace ContactDatabase {
         int __index;
         int __expIndex;
     };
+
+    class ExCorruptFile {
+    public:
+        ExCorruptFile() { __name = "ExCorruptFile"; }
+
+        std::ostream &print(std::ostream &os) {
+            os << __name << std::endl;
+            return os;
+        }
+
+        friend std::ostream &operator<<(ExCorruptFile &ex, std::ostream &os) {
+            ex.print(os);
+            return os;
+        }
+
+    private:
+        std::string __name;
+    };
 }
 
 #endif //FINALPROJECT_CONTACTSEXCEPTIONS_H

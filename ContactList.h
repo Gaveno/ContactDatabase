@@ -19,11 +19,14 @@ namespace ContactDatabase {
         ~ContactList();
 
         /*
-         * Main menu
-         * 1) Display Contacts
-         * 2) Add Contact
-         * 3) Exit
-         */
+        * Main menu
+        * 1) Display Contacts
+        * 2) Search Contacts
+        * 3) Add Contact
+        * 4) Load Contacts
+        * 5) Save Contacts
+        * 6) Exit
+        */
         void menuMain();
 
         /*
@@ -34,6 +37,15 @@ namespace ContactDatabase {
          * Row# - Firstname Lastname, Companyname
          */
         void menuDisplay();
+
+        /*
+         * Search Contacts Menu
+         * Gets a field to search through
+         * and a string to search for
+         * also asks for the mode of search
+         * exact, or contains
+         */
+        void menuSearch();
 
         /*
          * Add Contact Menu
@@ -79,8 +91,11 @@ namespace ContactDatabase {
         AVLTree *__tree;
         std::string __lastFile;
 
-        std::vector<ItemType> &displaySorted(std::vector<ItemType> &vec, unsigned int field = 0);
+        std::vector<ItemType> &displaySorted(AVLTree &tree, std::vector<ItemType> &vec, unsigned int field = 0);
         std::string padWidth(string str, unsigned int w);
+
+        string getWords();
+        unsigned int getNumbers(int from, int to);
 
         // Save type 0 is __lastFile for filename 1 is for new name
         void save(int type = 0);

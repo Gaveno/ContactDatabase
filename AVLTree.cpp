@@ -21,6 +21,7 @@ AVLTree::AVLTree() {
 }
 
 AVLTree::AVLTree(const AVLTree& tree) {
+    this->root = nullptr;
     this->copyTree(tree);
 }
 
@@ -29,19 +30,37 @@ AVLTree::~AVLTree() {
 }
 
 bool AVLTree::copyTree(const AVLTree& tree) {
-    if ( tree.root == nullptr ) return false;
+    if (tree.root == nullptr) return false;
     this->clearTree();
     this->root = this->copySubtree(tree.root);
     return true;
 }
 
 
-std::vector<ItemType> &AVLTree::addVector(std::vector<ItemType> &vec) {
+std::vector<ItemType> &AVLTree::addVector (
+        std::vector<ItemType> &vec,
+        std::string item,
+        FieldSearch field,
+        SearchMode mode
+) {
     if ( this->root == nullptr ) throw ContactDatabase::ExEmptyTree();
 
-    this->addVector(this->root, vec);
+    this->addVector(this->root, vec, item, field, mode);
 
     return vec;
+}
+
+AVLTree &AVLTree::addTree (
+        AVLTree &tree,
+        std::string item,
+        FieldSearch field,
+        SearchMode mode
+) {
+    if ( this->root == nullptr ) throw ContactDatabase::ExEmptyTree();
+
+    this->addTree(this->root, tree, item, field, mode);
+
+    return tree;
 }
 
 bool AVLTree::insert(ItemType newData) {
@@ -184,8 +203,12 @@ ItemType &AVLTree::locate(ItemType existingData) {
 }
 
 bool AVLTree::clearTree() {
-    if ( this->root == nullptr ) return false;
-    delete this->root;
+    if ( this->root == nullptr )
+        return false;
+    else {
+        delete this->root;
+        this->root = nullptr;
+    }
     return true;
 }
 
@@ -285,15 +308,41 @@ void AVLTree::printBalance(AVLNode* node) {
     this->printBalance(node->right);
 }
 
-std::vector<ItemType> &AVLTree::addVector(AVLNode *node, std::vector<ItemType> &vec) {
+std::vector<ItemType> &AVLTree::addVector (
+        AVLNode *node,
+        std::vector<ItemType> &vec,
+        std::string item,
+        FieldSearch field, SearchMode mode
+) {
     if ( node != nullptr ) {
-        if (node->data.getFirstName() != "NULL")
-            vec.push_back(node->data);
-        addVector(node->left, vec);
-        addVector(node->right, vec);
+        if (node->data.getFirstName() != "NULL") {
+            if (item == "NULL" || node->data.searchFor(item, field, mode))
+                vec.push_back(node->data);
+        }
+        addVector(node->left, vec, item, field);
+        addVector(node->right, vec, item, field);
     }
 
     return vec;
+}
+
+AVLTree &AVLTree::addTree (
+        AVLNode *node,
+        AVLTree &tree,
+        std::string item,
+        FieldSearch field, SearchMode mode
+) {
+    if ( node != nullptr ) {
+        //std::cout << node->data;
+        if (node->data.getFirstName() != "NULL") {
+            if (item == "NULL" || node->data.searchFor(item, field, mode))
+                tree.insert(node->data);
+        }
+        addTree(node->left, tree, item, field, mode);
+        addTree(node->right, tree, item, field, mode);
+    }
+
+    return tree;
 }
 
 unsigned int AVLTree::height(AVLNode* node) const {

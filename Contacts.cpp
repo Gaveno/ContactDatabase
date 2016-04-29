@@ -59,10 +59,10 @@ namespace ContactDatabase {
             case 1: __middleName = entry; break;
             case 2: __lastName = entry; break;
             case 3: __companyName = entry; break;
-            case 4: __homePhone = entry; break;
-            case 5: __officePhone = entry; break;
-            case 6: __email = entry; break;
-            case 7: __mobileNumber = entry; break;
+            case 4: setHomePhone(entry); break;
+            case 5: setOfficePhone(entry); break;
+            case 6: setEmail(entry); break;
+            case 7: setMobilePhone(entry); break;
             case 8: __streetAddress = entry; break;
             case 9: __city = entry; break;
             case 10: __state = entry; break;
@@ -96,7 +96,12 @@ namespace ContactDatabase {
     std::ostream &Contacts::printDetailed(std::ostream &os) const {
         // Print out contact information
         for (unsigned int i = 0; i < NUM_FIELDS; ++i) {
-            os << FIELD_NAMES[i] << ": " << getField(i) << "\n";
+            os << FIELD_NAMES[i] << ": ";
+            if (getField(i) == "NULL")
+                os << "<Empty>";
+            else
+                os << getField(i);
+            os << "\n";
         }
 
         // Print out affiliate information is exists
@@ -156,7 +161,130 @@ namespace ContactDatabase {
     }
 
     void Contacts::printNames() const {
-        std::cout << getFirstName() << " " << getLastName() << ", " << getCompanyName();
+        std::cout << getFirstName();
+        if (getLastName() != "NULL")
+            std::cout << " " << getLastName();
+        if (getCompanyName() != "NULL")
+            std::cout << ", " << getCompanyName();
+    }
+
+    bool Contacts::searchFor(string &item, FieldSearch field, SearchMode mode) const {
+        // If null then no search is happening, include everything
+        if (item == "NULL") return true;
+
+        // Searching all fields for exact or contains
+        // Includes affiliates
+        if ( field == FieldSearch::ALL ) {
+            // Search all records
+            if ( mode == SearchMode::EXACT ) {
+                // Exact searches: every character must match
+                // a string == comparison
+                bool contains = false;
+                for (unsigned int i = 0; i < (unsigned int)FieldSearch::AFFILIATES; ++i) {
+                    if (getField(i) == item)
+                        contains = true;
+                }
+
+                for (unsigned int i = 0; i < __affiliates.size(); ++i) {
+                    if (__affiliates[i].getFirstName() == item)
+                        contains = true;
+                    if (__affiliates[i].getLastName() == item)
+                        contains = true;
+                    if (__affiliates[i].getMobilePhone() == item)
+                        contains = true;
+                    if (__affiliates[i].getEmail() == item)
+                        contains = true;
+                }
+
+                return contains;
+            }
+            else {
+                // mode is CONTAINS
+                bool contains = false;
+                for (unsigned int i = 0; i < (unsigned int)FieldSearch::AFFILIATES; ++i) {
+                    int p = getField(i).find(item);
+                    if (p != string::npos) {
+                        contains = true;
+                    }
+                }
+
+                for (unsigned int i = 0; i < __affiliates.size(); ++i) {
+                    int p = __affiliates[i].getFirstName().find(item);
+                    if (p != string::npos) {
+                        contains = true;
+                    }
+                    p = __affiliates[i].getLastName().find(item);
+                    if (p != string::npos) {
+                        contains = true;
+                    }
+                    p = __affiliates[i].getMobilePhone().find(item);
+                    if (p != string::npos) {
+                        contains = true;
+                    }
+                    p = __affiliates[i].getEmail().find(item);
+                    if (p != string::npos) {
+                        contains = true;
+                    }
+                }
+
+                return contains;
+            }
+        }
+
+        // Searching individual fields for exact or contains
+        if ( field != FieldSearch::AFFILIATES) {
+            // non-affiliates are more straightforward
+            // searching in a specific field
+            if ( mode == SearchMode::EXACT ) {
+                // Exact searches: every character must match
+                // a string == comparison
+                return (getField((unsigned int)field) == item);
+            }
+            else {
+                // mode is CONTAINS
+                int p = getField((unsigned int)field).find(item);
+                return (p != string::npos);
+            }
+        }
+        else {
+            // Searching through affiliates, all fields
+            bool contains = false;
+            if ( mode == SearchMode::EXACT ) {
+                for (unsigned int i = 0; i < __affiliates.size(); ++i) {
+                    if (__affiliates[i].getFirstName() == item)
+                        contains = true;
+                    if (__affiliates[i].getLastName() == item)
+                        contains = true;
+                    if (__affiliates[i].getMobilePhone() == item)
+                        contains = true;
+                    if (__affiliates[i].getEmail() == item)
+                        contains = true;
+                }
+            }
+            else {
+                // Contains
+                for (unsigned int i = 0; i < __affiliates.size(); ++i) {
+                    int p = __affiliates[i].getFirstName().find(item);
+                    if (p != string::npos) {
+                        contains = true;
+                    }
+                    p = __affiliates[i].getLastName().find(item);
+                    if (p != string::npos) {
+                        contains = true;
+                    }
+                    p = __affiliates[i].getMobilePhone().find(item);
+                    if (p != string::npos) {
+                        contains = true;
+                    }
+                    p = __affiliates[i].getEmail().find(item);
+                    if (p != string::npos) {
+                        contains = true;
+                    }
+                }
+            }
+
+            return contains;
+        }
     }
 
     //  Getters - Non-Const
@@ -291,20 +419,27 @@ namespace ContactDatabase {
         string line;
         getline(is, line);
 
+        __idGen--;
         //if (is.eof()) std::cout << "Warning... Empty contact file." << std::endl;
         //if (line.size() != 9) std::cout << "Warning... Corrupt contact file." << std::endl;
-
+        //std::cout << line.size();
+        if (line.size() != 9 && line.size() != 0) throw ExCorruptFile();
         while (!is.eof() && line[0] != '|' && line.size() == 9 && line[0] != ' ') {
             setID((unsigned) std::stoi(line));
+            if (__id > __idGen) __idGen = (__id + 1);
             for (unsigned int i = 0; i < Contacts::NUM_FIELDS; ++i) {
                 getline(is, line);
-                getField(i) = line;
+                if (line.size() > 0)
+                    getField(i) = line;
+                else
+                    setField(i, "NULL");
             }
 
             //Affiliates
             getline(is, line);
             while (line[0] != '|' && !is.eof()) {
                 if (getNumChars(line, ',')) {
+                    if (getNumChars(line, ';') == 0) throw ExCorruptFile();
                     // Has email and phone number
                     string  a_fn, a_ln, a_pn, a_em;
 
@@ -320,6 +455,7 @@ namespace ContactDatabase {
                     Contacts::Affiliates a(this, a_fn, a_ln, a_pn, a_em);
                     addAffiliate(a);
                 } else {
+                    if (getNumChars(line, ';') == 0) throw ExCorruptFile();
                     // Does not have email or phone number
                     string a_fn, a_ln;
 

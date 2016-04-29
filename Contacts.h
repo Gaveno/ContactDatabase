@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include "searchconstants.h"
 
 using std::string;
 
@@ -108,6 +109,7 @@ namespace ContactDatabase {
         const Affiliates &getAffiliate(unsigned int index) const;
         const string &operator[](unsigned int index) const;
         void printNames() const;
+        bool searchFor(string &item, FieldSearch field = FieldSearch::ALL, SearchMode mode = SearchMode::EXACT) const;
 
         //  Accessors - Non-Constant
         string &getField(unsigned int index);
