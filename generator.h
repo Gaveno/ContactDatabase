@@ -14,20 +14,23 @@
 using namespace std;
 using namespace ContactDatabase;
 
-const int NAME_FIRST_NUM = 14;
+const int NAME_FIRST_NUM = 23;
 const string NAME_FIRST[] = {
         "Ad", "Ar", "All",
         "B", "C", "D", "Ed",
         "Ell", "F", "G", "J",
-        "Gr", "Br", "H"
+        "Gr", "Br", "H", "L",
+        "P", "Z", "R", "M", "N",
+        "Qu", "Kl", "K"
 };
-const int NAME_MID_NUM = 6;
+const int NAME_MID_NUM = 10;
 const string NAME_MID[] = {
-        "a", "e", "i", "o", "u", "y"
+        "a", "e", "i", "o", "u", "y", "ae", "ou", "eou", "or"
 };
-const int NAME_LAST_NUM = 7;
+const int NAME_LAST_NUM = 12;
 const string NAME_LAST[] = {
-        "m", "r", "lle", "b", "c", "tt", "ttel"
+        "m", "r", "lle", "b", "c", "tt", "ttel",
+        "rk", "k", "ck", "rd", "tney"
 };
 const int CITY_TYPE_NUM = 4;
 const string CITY_TYPE[] = {

@@ -39,7 +39,7 @@ namespace ContactDatabase {
      */
     void ContactList::menuMain() {
         int input = 0;
-        while (input != 5) {
+        while (input != 6) {
             std::cout << "\n------ Main Menu ------" << std::endl;
             std::cout << "1) Display Contacts" << std::endl;
             std::cout << "2) Search Contacts" << std::endl;
@@ -56,7 +56,7 @@ namespace ContactDatabase {
                 case 3: menuAddContact(); break;
                 case 4: menuLoad(); break;
                 case 5: menuSave(); break;
-                case 6: return;
+                //case 6: return;
                 default: break;
             }
         }
@@ -87,11 +87,11 @@ namespace ContactDatabase {
             std::cout << "2) Sort and display all"  << std::endl;
             std::cout << "3) Search and display"    << std::endl;
             if (first) {
-                std::cout << "4) <- Main Menu" << std::endl;
+                std::cout << "4) Back" << std::endl;
             }
             else {
                 std::cout << "4) Modify Contact" << std::endl;
-                std::cout << "5) <- Main Menu" << std::endl;
+                std::cout << "5) Back" << std::endl;
             }
 
             //cin >> input;
@@ -175,7 +175,7 @@ namespace ContactDatabase {
             std::cout << Option::MODE << ") Select search mode" << std::endl;
             if (__tree->size() != stree.size())
                 std::cout << Option::EDIT << ") Modify Contact" << std::endl;
-            std::cout << Option::EXIT << ") <- Main Menu" << std::endl;
+            std::cout << Option::EXIT << ") Back" << std::endl;
 
             //cin >> input;
             input = getNumbers(Option::SEARCH, Option::EXIT);
@@ -303,7 +303,7 @@ namespace ContactDatabase {
                 std::cout << padWidth(str, 20);
             }
             std::cout << padWidth("14) Remove Contact", 20);
-            std::cout  << "\n" << (15) << ") Back" << std::endl;
+            std::cout  << "\n" << (15) << ") Save and Exit" << std::endl;
 
             // Get selection
             //cin >> input;
@@ -392,12 +392,12 @@ namespace ContactDatabase {
         if (__lastFile != "NULL") {
             std::cout << "1) Save (same name)\n";
             std::cout << "2) Save as (new name)\n";
-            std::cout << "3) <- Main Menu\n";
+            std::cout << "3) Back\n";
         }
         else {
             numOptions = 2;
             std::cout << "1) Save\n";
-            std::cout << "2) <- Main Menu\n";
+            std::cout << "2) Back\n";
         }
 
         int input = 0;

@@ -10,6 +10,10 @@ using namespace ContactDatabase;
 
 int main() {
 
+    fstream fout ("contacts.txt");
+    generateContacts(100, fout);
+    fout.close();
+
     ContactList cl("contacts.txt");
     cl.menuMain();
 
