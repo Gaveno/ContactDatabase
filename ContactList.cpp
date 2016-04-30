@@ -475,6 +475,7 @@ namespace ContactDatabase {
             }
             catch (...) {
                 std::cerr << "\nError in file...\nFile not loaded." << std::endl;
+                std::cerr << "An unknown error occured.\n\n";
                 __tree->clearTree();
             }
             if (__tree->size() > 0) {

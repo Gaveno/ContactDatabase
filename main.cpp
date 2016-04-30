@@ -11,8 +11,8 @@ using namespace ContactDatabase;
 int main() {
 
     // Contact generation
-    /*fstream fout ("contacts.txt");
-    generateContacts(100, fout);
+    /*ofstream fout ("contacts.txt");
+    generateContacts(200, fout);
     fout.close();*/
 
     ContactList cl("contacts.txt");

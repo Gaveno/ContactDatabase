@@ -426,9 +426,20 @@ namespace ContactDatabase {
         //if (is.eof()) std::cout << "Warning... Empty contact file." << std::endl;
         //if (line.size() != 9) std::cout << "Warning... Corrupt contact file." << std::endl;
         //std::cout << line.size();
-        if (line.size() != 9 && line.size() != 0) throw ExCorruptFile("first line of contact incorrect length.");
+        if (line.size() != 9 && line.size() != 0) throw ExCorruptFile("ID of contact incorrect size.");
         while (!is.eof() && line[0] != '|' && line.size() == 9 && line[0] != ' ') {
-            setID((unsigned) std::stoi(line));
+            bool contactfound = false;
+            while (!contactfound && !is.eof()) {
+                if (is.eof()) return is;
+                try {
+                    setID((unsigned) std::stoi(line));
+                    contactfound = true;
+                }
+                catch (...) {
+                    contactfound = false;
+                    getline(is, line);
+                }
+            }
             if (__id > __idGen) __idGen = (__id + 1);
             for (unsigned int i = 0; i < Contacts::NUM_FIELDS; ++i) {
                 getline(is, line);
