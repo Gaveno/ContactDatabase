@@ -160,12 +160,25 @@ namespace ContactDatabase {
         }
     }
 
-    void Contacts::printNames() const {
+    void Contacts::printNames(FieldSearch f1, FieldSearch f2) const {
         std::cout << getFirstName();
+        if (getMiddleName() != "NULL")
+            std::cout << " " << getMiddleName();
         if (getLastName() != "NULL")
             std::cout << " " << getLastName();
         if (getCompanyName() != "NULL")
             std::cout << ", " << getCompanyName();
+        // Print additional fields as neccessary
+        if (f1 != FieldSearch::FIRSTNAME && f1 != FieldSearch::LASTNAME
+            && f1 != FieldSearch::MIDDLENAME && f1 != FieldSearch::COMPANYNAME) {
+            if (getField((unsigned) f1) != "NULL")
+                std::cout << ", " << getField((unsigned) f1);
+        }
+        if (f2 != FieldSearch::FIRSTNAME && f2 != FieldSearch::LASTNAME
+            && f2 != FieldSearch::MIDDLENAME && f2 != FieldSearch::COMPANYNAME) {
+            if (getField((unsigned) f2) != "NULL")
+                std::cout << ", " << getField((unsigned) f2);
+        }
     }
 
     bool Contacts::searchFor(string &item, FieldSearch field, SearchMode mode) const {
@@ -426,8 +439,8 @@ namespace ContactDatabase {
         //if (is.eof()) std::cout << "Warning... Empty contact file." << std::endl;
         //if (line.size() != 9) std::cout << "Warning... Corrupt contact file." << std::endl;
         //std::cout << line.size();
-        if (line.size() != 9 && line.size() != 0) throw ExCorruptFile("ID of contact incorrect size.");
-        while (!is.eof() && line[0] != '|' && line.size() == 9 && line[0] != ' ') {
+        //if (line.size() != 9 && line.size() != 0) throw ExCorruptFile("ID of contact incorrect size.");
+        while (!is.eof() && line[0] != '|' /*&& line.size() == 9*/ && line[0] != ' ') {
             bool contactfound = false;
             while (!contactfound && !is.eof()) {
                 if (is.eof()) return is;
@@ -453,7 +466,17 @@ namespace ContactDatabase {
             getline(is, line);
             while (line[0] != '|' && !is.eof()) {
                 if (getNumChars(line, ',')) {
-                    if (getNumChars(line, ';') == 0) throw ExCorruptFile("Affiliate does not end with semi-colon.");
+                    if (getNumChars(line, ';') == 0) {
+                        /*std::cout << "Affiliate: " << line << std::endl;
+                        for (int i = 1; i < 10; ++i) {
+                            getline(is, line);
+                            std::cout << "AL + " << i << ": " << line << std::endl;
+                        }*/
+                        std::cout << "Contact: " << getID() << " " << getFirstName() << " ";
+                        std::cout << getMiddleName() << " " << getLastName() << std::endl;
+                        std::cout << "Not loaded due to an affiliate error.\n";
+                        throw ExCorruptFile("Affiliate does not end with semi-colon.");
+                    }
                     // Has email and phone number
                     string  a_fn, a_ln, a_pn, a_em;
 
@@ -469,7 +492,17 @@ namespace ContactDatabase {
                     Contacts::Affiliates a(this, a_fn, a_ln, a_pn, a_em);
                     addAffiliate(a);
                 } else {
-                    if (getNumChars(line, ';') == 0) throw ExCorruptFile("Affiliate does not end with semi-colon.");
+                    if (getNumChars(line, ';') == 0) {
+                        /*std::cout << "Affiliate: " << line << std::endl;
+                        for (int i = 1; i < 10; ++i) {
+                            getline(is, line);
+                            std::cout << "AL + " << i << ": " << line << std::endl;
+                        }*/
+                        std::cout << "Contact: " << getID() << " " << getFirstName() << " ";
+                        std::cout << getMiddleName() << " " << getLastName() << std::endl;
+                        std::cout << "Not loaded due to an affiliate error.\n";
+                        throw ExCorruptFile("Affiliate does not end with semi-colon.");
+                    }
                     // Does not have email or phone number
                     string a_fn, a_ln;
 

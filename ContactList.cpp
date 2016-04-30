@@ -457,26 +457,31 @@ namespace ContactDatabase {
     void ContactList::loadContacts(std::string fname) {
         std::ifstream file(fname);
 
+        unsigned int contactsread = 0;
+
         if (file) {
             if (__tree->size() > 0) {
                 __tree->clearTree();
             }
             try {
                 while (!file.eof()) {
+                    ++contactsread;
                     Contacts c;
                     file >> c;
                     __tree->insert(c);
                 }
             }
             catch (ExCorruptFile &ex) {
-                std::cerr << "\nError in file...\nFile not loaded." << std::endl;
+                std::cerr << "\nError in file...\n" << std::endl; //File not loaded." << std::endl;
+                std::cerr << contactsread << " contacts read before error.\n";
                 ex.print(std::cerr);
-                __tree->clearTree();
+                //__tree->clearTree();
             }
             catch (...) {
-                std::cerr << "\nError in file...\nFile not loaded." << std::endl;
+                std::cerr << "\nError in file...\n" << std::endl; //File not loaded." << std::endl;
                 std::cerr << "An unknown error occured.\n\n";
-                __tree->clearTree();
+                std::cerr << contactsread << " contacts read before error.\n";
+                //__tree->clearTree();
             }
             if (__tree->size() > 0) {
                 __lastFile = fname;
@@ -550,7 +555,7 @@ namespace ContactDatabase {
         int i = 1;
         for (auto &e : vec) {
             std::cout << "#" << i << " - ";
-            e.printNames();
+            e.printNames(field, second);
             std::cout << std::endl;
             ++i;
         }
