@@ -40,7 +40,10 @@ namespace ContactDatabase {
     void ContactList::menuMain() {
         int input = 0;
         while (input != 6) {
-            std::cout << "\n------ Main Menu ------" << std::endl;
+            std::cout << "\n";
+            std::cout << "-----------------------\n";
+            std::cout << "------ Main Menu ------" << std::endl;
+            std::cout << "-----------------------\n";
             std::cout << "1) Display Contacts" << std::endl;
             std::cout << "2) Search Contacts" << std::endl;
             std::cout << "3) Add Contact" << std::endl;
@@ -102,6 +105,8 @@ namespace ContactDatabase {
                     if (!first) vec.clear();    // Clear previous results
                     displaySorted(*__tree, vec);         // Sort and display, loading for next menu iteration
                     break;
+
+                case 3: menuSearch(); break;
 
                 case 4: if (first) {
                         return;     // Exit on first iteration
@@ -436,6 +441,9 @@ namespace ContactDatabase {
                 __lastFile = fname;
             }
         }
+        else {
+            std::cout << "Error opening file. No contacts loaded.\n\n";
+        }
     }
 
     std::ostream &operator<<(std::ostream &os, const ContactList &cl) {
@@ -513,6 +521,7 @@ namespace ContactDatabase {
 
         if (file) {
             file << *this;
+            std::cout << "\n\n-- Contacts Saved! --\n\n";
         }
         else {
             std::cout << "Error: There was a problem saving to this location.\n";
