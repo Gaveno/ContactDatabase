@@ -11,6 +11,7 @@
 #include "ContactList.h"
 #include "Contacts.h"
 #include "ContactExeptions.h"
+#include "ContactsExceptions.h"
 
 namespace ContactDatabase {
 
@@ -105,6 +106,40 @@ namespace ContactDatabase {
                     if (!first) vec.clear();    // Clear previous results
                     displaySorted(*__tree, vec);         // Sort and display, loading for next menu iteration
                     break;
+
+                case 2: {
+                    // Sort and display
+                    FieldSearch field;
+                    FieldSearch second;
+
+                    std::cout << "------ Sort and Display Menu ------\n";
+                    std::cout << "Enter the FIRST field to sort by:\n";
+                    for (int i = 0; i < Contacts::NUM_FIELDS; ++i) {
+                        if (i % 3 == 0) std::cout << std::endl;
+
+                        string o = to_string(i + 1) + ") " + Contacts::FIELD_NAMES[i];
+                        std::cout << padWidth(o, 20);
+                    }
+                    std::cout << std::endl;
+
+                    field = (FieldSearch) (getNumbers(1, Contacts::NUM_FIELDS) - 1);
+
+                    std::cout << "Enter the SECOND field to sort by:\n";
+                    for (int i = 0; i < Contacts::NUM_FIELDS; ++i) {
+                        if (i % 3 == 0) std::cout << std::endl;
+
+                        string o = to_string(i + 1) + ") " + Contacts::FIELD_NAMES[i];
+                        std::cout << padWidth(o, 20);
+                    }
+                    std::cout << std::endl;
+
+                    second = (FieldSearch) (getNumbers(1, Contacts::NUM_FIELDS) - 1);
+
+                    // Clear then display with sort fields
+                    vec.clear();
+                    displaySorted(*__tree, vec, field, second);
+                }
+                break;
 
                 case 3: menuSearch(); break;
 
@@ -433,6 +468,11 @@ namespace ContactDatabase {
                     __tree->insert(c);
                 }
             }
+            catch (ExCorruptFile &ex) {
+                std::cerr << "\nError in file...\nFile not loaded." << std::endl;
+                ex.print(std::cerr);
+                __tree->clearTree();
+            }
             catch (...) {
                 std::cerr << "\nError in file...\nFile not loaded." << std::endl;
                 __tree->clearTree();
@@ -476,13 +516,32 @@ namespace ContactDatabase {
         return is;
     }
 
-    std::vector<ItemType> &ContactList::displaySorted(AVLTree &tree, std::vector<ItemType> &vec, unsigned int field) {
+    std::vector<ItemType> &ContactList::displaySorted
+            (
+            AVLTree &tree,
+            std::vector<ItemType> &vec,
+            FieldSearch field,
+            FieldSearch second
+            ) {
         tree.addVector(vec);
 
         SortContacts s(field);
 
         // Sort based on first name by default
         std::sort(vec.begin(), vec.end(), s);
+
+        // Bubble sort second field
+        bool swapped = true;
+        while (swapped) {
+            swapped = false;
+            for (unsigned int i = 1; i < vec.size(); ++i) {
+                if (vec[i].getField(field) == vec[i - 1].getField(field)
+                        && vec[i].getField(second) < vec[i - 1].getField(second)) {
+                    std::iter_swap(vec.begin() + i, vec.begin() + i - 1);
+                    swapped = true;
+                }
+            }
+        }
 
         std::cout << "------ Contact List ------" << std::endl;
 
@@ -558,4 +617,10 @@ namespace ContactDatabase {
         return (unsigned ) num;
     }
 
+    template <class T>
+    void ContactList::swap(T &a, T &b) {
+        T &c = a;
+        a = b;
+        b = c;
+    }
 }

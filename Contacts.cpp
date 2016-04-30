@@ -423,7 +423,7 @@ namespace ContactDatabase {
         //if (is.eof()) std::cout << "Warning... Empty contact file." << std::endl;
         //if (line.size() != 9) std::cout << "Warning... Corrupt contact file." << std::endl;
         //std::cout << line.size();
-        if (line.size() != 9 && line.size() != 0) throw ExCorruptFile();
+        if (line.size() != 9 && line.size() != 0) throw ExCorruptFile("first line of contact incorrect length.");
         while (!is.eof() && line[0] != '|' && line.size() == 9 && line[0] != ' ') {
             setID((unsigned) std::stoi(line));
             if (__id > __idGen) __idGen = (__id + 1);
@@ -439,7 +439,7 @@ namespace ContactDatabase {
             getline(is, line);
             while (line[0] != '|' && !is.eof()) {
                 if (getNumChars(line, ',')) {
-                    if (getNumChars(line, ';') == 0) throw ExCorruptFile();
+                    if (getNumChars(line, ';') == 0) throw ExCorruptFile("Affiliate does not end with semi-colon.");
                     // Has email and phone number
                     string  a_fn, a_ln, a_pn, a_em;
 
@@ -455,7 +455,7 @@ namespace ContactDatabase {
                     Contacts::Affiliates a(this, a_fn, a_ln, a_pn, a_em);
                     addAffiliate(a);
                 } else {
-                    if (getNumChars(line, ';') == 0) throw ExCorruptFile();
+                    if (getNumChars(line, ';') == 0) throw ExCorruptFile("Affiliate does not end with semi-colon.");
                     // Does not have email or phone number
                     string a_fn, a_ln;
 

@@ -171,7 +171,8 @@ namespace ContactDatabase {
     class SortContacts {
     public:
         SortContacts() : __index(0) { }
-        SortContacts(unsigned int index) : __index(index) { }
+        SortContacts(FieldSearch index)
+                : __index((unsigned) index) { }
 
         bool operator()(Contacts &a, Contacts &b) { return (a.getField(__index) < b.getField(__index)); }
 

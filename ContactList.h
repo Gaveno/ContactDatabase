@@ -91,7 +91,13 @@ namespace ContactDatabase {
         AVLTree *__tree;
         std::string __lastFile;
 
-        std::vector<ItemType> &displaySorted(AVLTree &tree, std::vector<ItemType> &vec, unsigned int field = 0);
+        std::vector<ItemType> &displaySorted
+                (
+                AVLTree &tree,
+                std::vector<ItemType> &vec,
+                FieldSearch field = FieldSearch::FIRSTNAME,
+                FieldSearch second = FieldSearch::LASTNAME
+                );
         std::string padWidth(string str, unsigned int w);
 
         string getWords();
@@ -99,6 +105,9 @@ namespace ContactDatabase {
 
         // Save type 0 is __lastFile for filename 1 is for new name
         void save(int type = 0);
+
+        template <class T>
+                void swap(T &a, T &b);
     };
 }
 

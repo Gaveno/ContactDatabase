@@ -40,20 +40,21 @@ namespace ContactDatabase {
 
     class ExCorruptFile {
     public:
-        ExCorruptFile() { __name = "ExCorruptFile"; }
+        ExCorruptFile(std::string message) : __msg(message) { __name = "ExCorruptFile"; }
 
         std::ostream &print(std::ostream &os) {
-            os << __name << std::endl;
+            os << __name << " : " << __msg << std::endl;
             return os;
         }
 
-        friend std::ostream &operator<<(ExCorruptFile &ex, std::ostream &os) {
-            ex.print(os);
+        std::ostream &operator<<(std::ostream &os) {
+            print(os);
             return os;
         }
 
     private:
         std::string __name;
+        std::string __msg;
     };
 }
 
