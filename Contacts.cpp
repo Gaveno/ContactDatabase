@@ -338,10 +338,13 @@ namespace ContactDatabase {
     // Friend functions
     std::ostream& operator<<(std::ostream &os, const Contacts::Affiliates &aff) {
         os << aff.getFirstName() << " " << aff.getLastName();
+
         if (aff.getMobilePhone() != "NULL")
             os << ", " << aff.getMobilePhone();
+
         if (aff.getEmail() != "NULL")
             os << ", " << aff.getEmail();
+
         os << ";" << endl;
 
         return os;

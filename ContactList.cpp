@@ -527,7 +527,8 @@ namespace ContactDatabase {
 
         SortContacts s(field);
 
-        // Sort based on first name by default
+        // Sort based on first name then
+        // last name by default
         std::sort(vec.begin(), vec.end(), s);
 
         // Bubble sort second field
@@ -615,12 +616,5 @@ namespace ContactDatabase {
         }
 
         return (unsigned ) num;
-    }
-
-    template <class T>
-    void ContactList::swap(T &a, T &b) {
-        T &c = a;
-        a = b;
-        b = c;
     }
 }

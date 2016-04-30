@@ -105,9 +105,6 @@ namespace ContactDatabase {
 
         // Save type 0 is __lastFile for filename 1 is for new name
         void save(int type = 0);
-
-        template <class T>
-                void swap(T &a, T &b);
     };
 }
 
