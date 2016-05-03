@@ -18,6 +18,7 @@ namespace ContactDatabase {
     ContactList::ContactList() {
         __tree = new AVLTree;
         __lastFile = "NULL";
+        __gotomain = false;
     }
 
     ContactList::ContactList(std::string fname) : ContactList() {
@@ -41,6 +42,7 @@ namespace ContactDatabase {
     void ContactList::menuMain() {
         int input = 0;
         while (input != 6) {
+            __gotomain = false;
             std::cout << "\n";
             std::cout << "-----------------------\n";
             std::cout << "------ Main Menu ------" << std::endl;
@@ -55,7 +57,7 @@ namespace ContactDatabase {
             input = getNumbers(1, 6);
 
             switch (input) {
-                case 1: menuDisplay(); break;
+                case 1: menuDisplay(*__tree); break;
                 case 2: menuSearch(); break;
                 case 3: menuAddContact(); break;
                 case 4: menuLoad(); break;
@@ -73,38 +75,40 @@ namespace ContactDatabase {
      * the format:
      * Row# - Firstname Lastname, Companyname
      */
-    void ContactList::menuDisplay() {
+    void ContactList::menuDisplay(AVLTree &tree) {
         int input = 0;
         bool first = true;
         std::vector<ItemType> vec;
 
-        if (__tree->size() == 0) {
+        if (tree.size() == 0) {
             std::cout << "\nEmpty contact list!" << std::endl;
             std::cout << "Load a list from a file," << std::endl;
             std::cout << "or add at least one contact\nbefore performing this action!\n\n";
             return;
         }
 
-        while (input != 4) {
+        while (input != 4 && !__gotomain) {
             std::cout << "\n------ Display Menu ------" << std::endl;
             std::cout << "1) Display all contacts"  << std::endl;
             std::cout << "2) Sort and display all"  << std::endl;
             std::cout << "3) Search and display"    << std::endl;
             if (first) {
                 std::cout << "4) Back" << std::endl;
+                std::cout << "5) <-- Main Menu" << std::endl;
             }
             else {
                 std::cout << "4) Modify Contact" << std::endl;
                 std::cout << "5) Back" << std::endl;
+                std::cout << "6) <-- Main Menu" << std::endl;
             }
 
             //cin >> input;
-            input = getNumbers(1, 5);
+            input = getNumbers(1, 6);
 
             switch (input) {
                 case 1:
                     if (!first) vec.clear();    // Clear previous results
-                    displaySorted(*__tree, vec);         // Sort and display, loading for next menu iteration
+                    displaySorted(tree, vec);         // Sort and display, loading for next menu iteration
                     break;
 
                 case 2: {
@@ -137,7 +141,7 @@ namespace ContactDatabase {
 
                     // Clear then display with sort fields
                     vec.clear();
-                    displaySorted(*__tree, vec, field, second);
+                    displaySorted(tree, vec, field, second);
                 }
                 break;
 
@@ -162,7 +166,10 @@ namespace ContactDatabase {
                     break;
 
                 case 5: if (!first) return; // Exit after first menu iteration
+                        else __gotomain = true;
                     break;
+
+                case 6: if (!first) __gotomain = true; break;
 
                 default: break;
             }
@@ -189,7 +196,7 @@ namespace ContactDatabase {
 
         // Menu options
         enum Option {
-            SEARCH=1, STRING, FIELD, MODE, EDIT, EXIT
+            SEARCH=1, STRING, FIELD, MODE, DISPLAY, EDIT, EXIT, MAIN
         };
 
         // Search arguments
@@ -204,7 +211,7 @@ namespace ContactDatabase {
         // Menu option selected
         unsigned int input = 0;
 
-        while (input != Option::EXIT) {
+        while (input != Option::EXIT && !__gotomain) {
             if (__tree->size() == stree.size())
                 std::cout << "\n------ Search Menu ------" << std::endl;
             else
@@ -213,12 +220,14 @@ namespace ContactDatabase {
             std::cout << Option::STRING << ") Enter a search term" << std::endl;
             std::cout << Option::FIELD << ") Select field to search" << std::endl;
             std::cout << Option::MODE << ") Select search mode" << std::endl;
+            std::cout << Option::DISPLAY << ") Display & Sort Menu" << std::endl;
             if (__tree->size() != stree.size())
                 std::cout << Option::EDIT << ") Modify Contact" << std::endl;
             std::cout << Option::EXIT << ") Back" << std::endl;
+            std::cout << Option::MAIN << ") <-- Main Menu" << std::endl;
 
             //cin >> input;
-            input = getNumbers(Option::SEARCH, Option::EXIT);
+            input = getNumbers(Option::SEARCH, Option::MAIN);
 
             switch (input) {
                 case (unsigned int)Option::SEARCH: {
@@ -286,6 +295,11 @@ namespace ContactDatabase {
                 }
                 break;
 
+                case (unsigned int)Option::DISPLAY: {
+                    menuDisplay(stree);
+                }
+                break;
+
                 case (unsigned int) Option::EDIT:
                     if (vec.empty()) break;
                 {
@@ -302,6 +316,9 @@ namespace ContactDatabase {
                         std::cout << "Error: Row #" << row << " does not exist!" << std::endl;
                 }
                 break;
+
+                case (unsigned int) Option::MAIN:
+                    __gotomain = true; break;
 
                 default: break;
             }
@@ -326,7 +343,7 @@ namespace ContactDatabase {
     void ContactList::menuModifyContact(Contacts &cont) {
         Contacts original = cont;
         unsigned int input = 0;
-        while (input != (cont.NUM_FIELDS + 1)) {
+        while (input != (cont.NUM_FIELDS + 2)) {
             // Display menu
             std::cout << "\n------Modify Contact------" << std::endl;
 
@@ -334,7 +351,7 @@ namespace ContactDatabase {
             cont.printDetailed(std::cout);
 
             // Display options
-            for (unsigned int i = 0; i < cont.NUM_FIELDS; ++i) {
+            for (unsigned int i = 0; i < cont.NUM_FIELDS + 1; ++i) {
                 if (i % 3 == 0) {
                     std::cout << std::endl;
                 }
@@ -342,12 +359,12 @@ namespace ContactDatabase {
                 std::string str = to_string(i + 1) + ") " + cont.FIELD_NAMES[i];
                 std::cout << padWidth(str, 20);
             }
-            std::cout << padWidth("14) Remove Contact", 20);
-            std::cout  << "\n" << (15) << ") Save and Exit" << std::endl;
+            std::cout << padWidth("15) Remove Contact", 20);
+            std::cout  << "\n" << (16) << ") Save and Exit" << std::endl;
 
             // Get selection
             //cin >> input;
-            input = getNumbers(1, 16);
+            input = getNumbers(1, 17);
             input--;
             //if (input == cont.NUM_FIELDS)
                 //return; // Exit if selected
@@ -377,6 +394,10 @@ namespace ContactDatabase {
             }
             else {
                 if (input == 13) {
+                    // Affiliates menu
+                    menuListAffiliates(cont);
+                }
+                else if (input == 14) {
                     // delete contact, make sure!
                     std::cout << "Are you sure you want to delete: ";
                     cont.printNames();
@@ -403,6 +424,133 @@ namespace ContactDatabase {
         else {
             std::cout << "\n\nFirst name cannot be 'NULL'\nContact not saved!\n\n";
         }
+    }
+
+    /*
+         * List Contact's Affiliates Menu
+         * Menu to select an affiliate
+         */
+    void ContactList::menuListAffiliates(Contacts &cont) {
+        int input = 0;
+        enum Options { ADD=1, MODIFY, DELETE, SAVE };
+
+        while (input != SAVE) {
+            std::cout << "\n------ Affiliates ------\n\n";
+            for (int i = 0; i < cont.getNumAffiliates(); ++i) {
+                std::cout << "#" << (i + 1) << " ";
+                std::cout << cont.getAffiliate(i);
+            }
+            std::cout << std::endl;
+            std::cout << ADD << ") Add Affiliate\n";
+            std::cout << MODIFY << ") Modify Affiliate\n";
+            std::cout << DELETE << ") Remove Affiliate\n";
+            std::cout << SAVE << ") Save Affiliates & Exit\n";
+
+            input = getNumbers(ADD, SAVE);
+
+            switch (input) {
+                case ADD: {
+                    Contacts::Affiliates a(&cont, "NULL", "NULL");
+                    menuModifyAffiliate(a);
+                    if (a.getFirstName() != "NULL")
+                        cont.addAffiliate(a);
+                    else
+                        std::cout << "\n\nAffiliate must have a first name. Not Added.\n\n";
+                }
+                break;
+
+                case MODIFY: {
+                    std::cout << "\nEnter the row number of the affiliate to modify:\n";
+                    int sel = getNumbers(1, cont.getNumAffiliates() + 1);
+                    sel--;
+                    //Contacts::Affiliates b = cont.getAffiliate(sel);
+                    menuModifyAffiliate(cont.getAffiliate(sel));
+                    /*if (b != cont.getAffiliate(sel)) {
+                        cont.removeAffiliate(b);
+                        cont.addAffiliate(cont.getAffiliate(sel));
+                    }*/
+                }
+                break;
+
+                case DELETE: {
+                    std::cout << "\nEnter the row number of the affiliate to modify:\n";
+                    int sel = getNumbers(1, cont.getNumAffiliates() + 1);
+                    sel--;
+
+                    std::cout << "Are you sure you want to permenantly delete this affiliate?\n";
+                    std::cout << "This action cannot be done! To continue enter 'YES' exactly as shown:\n";
+                    string confirm = getWords();
+
+                    if (confirm == "YES") {
+                        cont.removeAffiliate(cont.getAffiliate(sel));
+                    }
+                }
+                break;
+
+                case SAVE: return;
+
+                default: break;
+            }
+        }
+    }
+
+    /*
+     * Modify Affiliate Menu
+     * Menu to delete, or modify an affiliate of a contact
+     */
+    Contacts::Affiliates &ContactList::menuModifyAffiliate(Contacts::Affiliates &aff) {
+        int input = 0;
+
+        enum Options { FIRST=1, LAST, PHONE, EMAIL, SAVE };
+
+        while (input != SAVE) {
+            std::cout << "\n------ Modify Affiliate ------\n\n";
+
+            std::cout << FIRST << ") First Name: ";
+            if (aff.getFirstName() == "NULL") std::cout << "<Empty>\n";
+            else std::cout << aff.getFirstName() << std::endl;
+
+            std::cout << LAST << ") Last Name: ";
+            if (aff.getLastName() == "NULL") std::cout << "<Empty>\n";
+            else std::cout << aff.getLastName() << std::endl;
+
+            std::cout << PHONE << ") Phone Number: ";
+            if (aff.getMobilePhone() == "NULL") std::cout << "<Empty>\n";
+            else std::cout << aff.getMobilePhone() << std::endl;
+
+            std::cout << EMAIL << ") Email: ";
+            if (aff.getEmail() == "NULL") std::cout << "<Empty>\n";
+            else std::cout << aff.getEmail() << std::endl;
+
+            std::cout << SAVE << ") Save & Exit\n";
+
+            input = getNumbers(FIRST, SAVE);
+
+            string current;
+            switch (input) {
+                case FIRST: current = aff.getFirstName(); break;
+                case LAST: current = aff.getLastName(); break;
+                case PHONE: current = aff.getMobilePhone(); break;
+                case EMAIL: current = aff.getEmail(); break;
+                default: break;
+            }
+
+            if (input != SAVE) {
+                std::cout << "Current Entry: " << current << std::endl;
+                std::cout << "Please enter the replacement entry:\n";
+                string entry = getWords();
+
+                switch (input) {
+                    case FIRST: aff.setFirstName(entry); break;
+                    case LAST: aff.setLastName(entry); break;
+                    case PHONE: aff.setNumber(entry); break;
+                    case EMAIL: aff.setEmail(entry); break;
+                    default: break;
+                }
+            }
+        }
+
+        return aff;
     }
 
     /*

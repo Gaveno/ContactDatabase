@@ -36,7 +36,7 @@ namespace ContactDatabase {
             //  Setters
             void setFirstName(string firstname) { __firstName = firstname; }
             void setLastName(string lastname) { __lastName = lastname; }
-            void setNumber(string number) { __mobileNumber = number; }
+            void setNumber(string number) { __mobileNumber = __owner->convertNumber(number); }
             void setEmail(string email) { __email = email; }
 
             //  Accessors
@@ -52,9 +52,15 @@ namespace ContactDatabase {
             const string &getState() const { return __owner->getState(); }
             const string &getZipCode() const { return __owner->getZipCode(); }
             const string &getCountry() const { return __owner->getCountry(); }
+            const Contacts *getOwner() const { return __owner; }
 
             //  Friend functions
             friend std::ostream &operator<<(std::ostream &os, const Affiliates &aff);
+            friend bool operator==(const Affiliates &lhs, const Affiliates &rhs) {
+                return (lhs.__firstName == rhs.__firstName && lhs.__lastName == rhs.__lastName &&
+                lhs.__email == rhs.__email && lhs.__mobileNumber == rhs.__mobileNumber);
+            }
+            friend bool operator!=(const Affiliates &lhs, const Affiliates &rhs) { return !(lhs == rhs); }
 
         private:
             string __firstName;
@@ -68,6 +74,10 @@ namespace ContactDatabase {
         Contacts();
         Contacts(string firstname);
         Contacts(string firstname, string middlename, string lastname);
+
+        // Helpers
+        string &convertNumber(string &number);
+        string &convertEmail(string &email);
 
         //  Setters
         std::istream &loadFromStream(std::istream &is);
@@ -87,6 +97,7 @@ namespace ContactDatabase {
         void setZipCode(string zipcode) { __zipCode = zipcode; }
         void setCountry(string country) { __country = country; }
         void addAffiliate(const Affiliates &aff);
+        void removeAffiliate(Affiliates &aff);
 
         //  Accessors - Constant
         std::ostream &printDetailed(std::ostream &os) const;
@@ -162,8 +173,6 @@ namespace ContactDatabase {
         std::vector<Affiliates> __affiliates;
 
         // Private functions
-        string &convertNumber(string &number);
-        string &convertEmail(string &email);
         string getWordN(string str, unsigned int n, char c = ' ', unsigned int pos = 0);
         int getNumChars(string str, char c);
     };

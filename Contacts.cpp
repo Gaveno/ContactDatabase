@@ -118,6 +118,14 @@ namespace ContactDatabase {
         return __affiliates[index];
     }
 
+    void Contacts::removeAffiliate(Affiliates &aff) {
+        for (auto it = __affiliates.begin(); it != __affiliates.end(); ++it) {
+            if (*it == aff) {
+                __affiliates.erase(it);
+            }
+        }
+    }
+
     const string &Contacts::getField(unsigned int index) const {
         if (index > 13) throw ExOutOfBounds("Contacts", index, 13);
 
@@ -352,11 +360,10 @@ namespace ContactDatabase {
     std::ostream& operator<<(std::ostream &os, const Contacts::Affiliates &aff) {
         os << aff.getFirstName() << " " << aff.getLastName();
 
-        if (aff.getMobilePhone() != "NULL")
+        if (aff.getMobilePhone() != "NULL" || aff.getEmail() != "NULL") {
             os << ", " << aff.getMobilePhone();
-
-        if (aff.getEmail() != "NULL")
             os << ", " << aff.getEmail();
+        }
 
         os << ";" << endl;
 

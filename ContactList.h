@@ -36,7 +36,7 @@ namespace ContactDatabase {
          * the format:
          * Row# - Firstname Lastname, Companyname
          */
-        void menuDisplay();
+        void menuDisplay(AVLTree &tree);
 
         /*
          * Search Contacts Menu
@@ -59,6 +59,18 @@ namespace ContactDatabase {
          * Menu to modify contact values
          */
         void menuModifyContact(Contacts &cont);
+
+        /*
+         * List Contact's Affiliates Menu
+         * Menu to select an affiliate
+         */
+        void menuListAffiliates(Contacts &cont);
+
+        /*
+         * Modify Affiliate Menu
+         * Menu to delete, or modify an affiliate of a contact
+         */
+        Contacts::Affiliates &menuModifyAffiliate(Contacts::Affiliates &aff);
 
         /*
          * Load Contacts Menu
@@ -105,6 +117,8 @@ namespace ContactDatabase {
 
         // Save type 0 is __lastFile for filename 1 is for new name
         void save(int type = 0);
+
+        bool __gotomain;
     };
 }
 
