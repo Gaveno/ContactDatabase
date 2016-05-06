@@ -6,6 +6,7 @@
 #include <iostream>
 #include <vector>
 #include <sstream>
+#include <iomanip>
 #include "Contacts.h"
 #include "ContactsExceptions.h"
 
@@ -169,23 +170,21 @@ namespace ContactDatabase {
     }
 
     void Contacts::printNames(FieldSearch f1, FieldSearch f2) const {
-        std::cout << getFirstName();
+        std::cout << std::setw(14) << getFirstName();
         if (getMiddleName() != "NULL")
-            std::cout << " " << getMiddleName();
+            std::cout << std::setw(14) << getMiddleName();
         if (getLastName() != "NULL")
-            std::cout << " " << getLastName();
-        if (getCompanyName() != "NULL")
-            std::cout << ", " << getCompanyName();
+            std::cout << std::setw(14) << getLastName();
         // Print additional fields as neccessary
         if (f1 != FieldSearch::FIRSTNAME && f1 != FieldSearch::LASTNAME
-            && f1 != FieldSearch::MIDDLENAME && f1 != FieldSearch::COMPANYNAME) {
+            && f1 != FieldSearch::MIDDLENAME) {
             if (getField((unsigned) f1) != "NULL")
-                std::cout << ", " << getField((unsigned) f1);
+                std::cout << std::setw(17) << getField((unsigned) f1).substr(0, 15);
         }
         if (f2 != FieldSearch::FIRSTNAME && f2 != FieldSearch::LASTNAME
-            && f2 != FieldSearch::MIDDLENAME && f2 != FieldSearch::COMPANYNAME) {
+            && f2 != FieldSearch::MIDDLENAME) {
             if (getField((unsigned) f2) != "NULL")
-                std::cout << ", " << getField((unsigned) f2);
+                std::cout << std::setw(17) << getField((unsigned) f2).substr(0, 15);
         }
     }
 

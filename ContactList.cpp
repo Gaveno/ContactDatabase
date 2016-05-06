@@ -554,6 +554,31 @@ namespace ContactDatabase {
     }
 
     /*
+     * Print Report Menu
+     * The user can select which fields and in what order
+     * to print out a sorted section of the contact list.
+     * Is displayed as an option after sorting.
+     */
+    void ContactList::menuPrintReport(vector<ItemType> vec) {
+        enum Flags { FIRST=1, MIDDLE=2, LAST=4, COMPANY=8,
+        HOME=16, OFFICE=32, EMAIL=64, MOBILE=128, STREET=256,
+        CITY=512, STATE=1024, ZIP=2048, COUNTRY=4096, AFFILLIATES=8192 };
+
+        unsigned int flags = Flags::FIRST | Flags::LAST | Flags::MOBILE;
+        int input = 0;
+        while (input != Contacts::NUM_FIELDS + 1) {
+            for (unsigned int i = 0; i <= Contacts::NUM_FIELDS; ++i) {
+                if (i % 3 == 0) std::cout << std::endl;
+                string line = to_string(i) + ") " + Contacts::FIELD_NAMES[i];
+                if (flags & (1 << i)) line += "X";
+                else line += "_";
+
+                std::cout << padWidth(line, 18);
+            }
+        }
+    }
+
+    /*
      * Load Contacts Menu
      * Prompt user for a file to load
      */
@@ -698,11 +723,25 @@ namespace ContactDatabase {
             }
         }
 
-        std::cout << "------ Contact List ------" << std::endl;
+        std::cout << "------------------ Contact List ------------------" << std::endl;
+        std::cout << setw(8) << "Row" << setw(14) << "First Name";
+        std::cout << setw(14) << "Middle Name" << setw(14) << "Last Name";
+        if (field != FieldSearch::FIRSTNAME && field != FieldSearch::ALL &&
+                field != FieldSearch::MIDDLENAME && field != FieldSearch::LASTNAME) {
+            std::cout << setw(17) << Contacts::FIELD_NAMES[(unsigned) field];
+        }
+        if (second != FieldSearch::FIRSTNAME && second != FieldSearch::ALL &&
+                second != FieldSearch::MIDDLENAME && second != FieldSearch::LASTNAME) {
+            std::cout << setw(17) << Contacts::FIELD_NAMES[(unsigned) second];
+        }
+        std::cout << std::endl;
 
         int i = 1;
         for (auto &e : vec) {
-            std::cout << "#" << i << " - ";
+            string o = "#";
+            o += to_string(i);
+            o += " -";
+            std::cout << setw(8) << o;
             e.printNames(field, second);
             std::cout << std::endl;
             ++i;

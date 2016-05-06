@@ -73,6 +73,14 @@ namespace ContactDatabase {
         Contacts::Affiliates &menuModifyAffiliate(Contacts::Affiliates &aff);
 
         /*
+         * Print Report Menu
+         * The user can select which fields and in what order
+         * to print out a sorted section of the contact list.
+         * Is displayed as an option after sorting.
+         */
+        void menuPrintReport(vector<ItemType> vec);
+
+        /*
          * Load Contacts Menu
          * Prompt user for a file to load
          */
