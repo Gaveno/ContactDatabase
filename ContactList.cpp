@@ -6,12 +6,14 @@
 #include <fstream>
 #include <vector>
 #include <algorithm>
+#include <string>
 #include <iomanip>
 #include <sstream>
 #include "ContactList.h"
 #include "Contacts.h"
 #include "ContactExeptions.h"
 #include "ContactsExceptions.h"
+#include "SortContacts.h"
 
 namespace ContactDatabase {
 
@@ -122,7 +124,7 @@ namespace ContactDatabase {
 
                     std::cout << "------ Sort and Display Menu ------\n";
                     std::cout << "Enter the FIRST field to sort by:\n";
-                    for (int i = 0; i < Contacts::NUM_FIELDS; ++i) {
+                    for (unsigned int i = 0; i < Contacts::NUM_FIELDS; ++i) {
                         if (i % 3 == 0) std::cout << std::endl;
 
                         string o = to_string(i + 1) + ") " + Contacts::FIELD_NAMES[i];
@@ -133,7 +135,7 @@ namespace ContactDatabase {
                     field = (FieldSearch) (getNumbers(1, Contacts::NUM_FIELDS) - 1);
 
                     std::cout << "Enter the SECOND field to sort by:\n";
-                    for (int i = 0; i < Contacts::NUM_FIELDS; ++i) {
+                    for (unsigned int i = 0; i < Contacts::NUM_FIELDS; ++i) {
                         if (i % 3 == 0) std::cout << std::endl;
 
                         string o = to_string(i + 1) + ") " + Contacts::FIELD_NAMES[i];
@@ -274,7 +276,7 @@ namespace ContactDatabase {
                 case (unsigned int)Option::FIELD: {
                     std::cout << "\nEnter a field to search in:\n";
                     std::cout << "------------------------------------------------------";
-                    for (int i = 0; i < Contacts::NUM_FIELDS; ++i) {
+                    for (unsigned int i = 0; i < Contacts::NUM_FIELDS; ++i) {
                         if (i % 3 == 0) std::cout << std::endl;
 
                         string o = to_string(i + 1) + ") " + Contacts::FIELD_NAMES[i];
@@ -462,7 +464,7 @@ namespace ContactDatabase {
 
         while (input != SAVE) {
             std::cout << "\n------ Affiliates ------\n\n";
-            for (int i = 0; i < cont.getNumAffiliates(); ++i) {
+            for (unsigned int i = 0; i < cont.getNumAffiliates(); ++i) {
                 std::cout << "#" << (i + 1) << " ";
                 std::cout << cont.getAffiliate(i);
             }
@@ -793,10 +795,10 @@ namespace ContactDatabase {
         return os;
     }
 
-    std::istream &operator>>(std::istream &is, ContactList &cl) {
+    std::istream &operator>>(std::istream &is, ContactDatabase::ContactList &cl) {
         //int i = 0;
         while (!is.eof()) {
-            Contacts c;
+            ContactDatabase::Contacts c;
             is >> c;
             if (c.getFirstName() != "NULL")
                 cl.__tree->insert(c);
@@ -866,7 +868,7 @@ namespace ContactDatabase {
     std::string ContactList::padWidth(string str, unsigned int w) {
         std::string temp;
         temp = str;
-        for (int i = str.size(); i < w; ++i) {
+        for (unsigned int i = str.size(); i < w; ++i) {
             temp += " ";
         }
 

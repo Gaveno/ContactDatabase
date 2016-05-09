@@ -182,8 +182,8 @@ ItemType &AVLTree::locate(ItemType existingData) {
     if ( this->root == nullptr ) throw ContactDatabase::ExEmptyTree();
 
     AVLNode* node = this->root;
-    AVLNode* parent = this->root;
-    AVLNode* deleteAVLNode = nullptr;
+    //AVLNode* parent = this->root;
+    //AVLNode* deleteAVLNode = nullptr;
     AVLNode* child = this->root;
 
     //------------------------------------------------------------------------------
@@ -192,7 +192,7 @@ ItemType &AVLTree::locate(ItemType existingData) {
     // removed. If the node is not found, then it cannot be removed.
     //------------------------------------------------------------------------------
     while ( child != nullptr ) {
-        parent = node;
+        //parent = node;
         node = child;
         child = existingData >= node->data ? node->right : node->left;
 

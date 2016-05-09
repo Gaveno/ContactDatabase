@@ -222,14 +222,14 @@ namespace ContactDatabase {
                 // mode is CONTAINS
                 bool contains = false;
                 for (unsigned int i = 0; i < (unsigned int)FieldSearch::AFFILIATES; ++i) {
-                    int p = getField(i).find(item);
+                    unsigned int p = getField(i).find(item);
                     if (p != string::npos) {
                         contains = true;
                     }
                 }
 
                 for (unsigned int i = 0; i < __affiliates.size(); ++i) {
-                    int p = __affiliates[i].getFirstName().find(item);
+                    unsigned int p = __affiliates[i].getFirstName().find(item);
                     if (p != string::npos) {
                         contains = true;
                     }
@@ -426,7 +426,7 @@ namespace ContactDatabase {
         // to the end if it's not present already
         string newemail;
         bool contains = false;
-        for (int i = 0; i < email.size(); ++i) {
+        for (unsigned int i = 0; i < email.size(); ++i) {
             if (email[i] == '@') contains = true; break;
         }
         if (!contains) {
@@ -473,11 +473,6 @@ namespace ContactDatabase {
             while (line[0] != '|' && !is.eof()) {
                 if (getNumChars(line, ',')) {
                     if (getNumChars(line, ';') == 0) {
-                        /*std::cout << "Affiliate: " << line << std::endl;
-                        for (int i = 1; i < 10; ++i) {
-                            getline(is, line);
-                            std::cout << "AL + " << i << ": " << line << std::endl;
-                        }*/
                         std::cout << "Contact: " << getID() << " " << getFirstName() << " ";
                         std::cout << getMiddleName() << " " << getLastName() << std::endl;
                         std::cout << "Not loaded due to an affiliate error.\n";
@@ -548,7 +543,7 @@ namespace ContactDatabase {
 
     int Contacts::getNumChars(string str, char c) {
         int n = 0;
-        for (int i = 0 ; i < str.size(); i++) {
+        for (unsigned int i = 0 ; i < str.size(); i++) {
             if (str[i] == c) n++;
         }
 

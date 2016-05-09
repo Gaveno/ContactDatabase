@@ -192,7 +192,7 @@ namespace ContactDatabase {
         int getNumChars(string str, char c);
     };
 
-    class SortContacts {
+    /*class SortContacts {
     public:
         SortContacts() : __index(0) { }
         SortContacts(FieldSearch index)
@@ -202,7 +202,7 @@ namespace ContactDatabase {
 
     private:
         unsigned int __index;
-    };
+    };*/
 }
 
 
