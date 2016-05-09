@@ -53,12 +53,19 @@ namespace ContactDatabase {
             const string &getZipCode() const { return __owner->getZipCode(); }
             const string &getCountry() const { return __owner->getCountry(); }
             const Contacts *getOwner() const { return __owner; }
-            std::ostream &print(std::ostream &os) const {
-                os << __firstName << " " << __lastName;
-                if (__mobileNumber != "NULL")
-                    os << " " << __mobileNumber;
-                if (__email != "NULL")
-                    os << " " << __email;
+            string print() const {
+                string os;
+                os = __firstName;
+                os += " ";
+                os += __lastName;
+                if (__mobileNumber != "NULL") {
+                    os += " ";
+                    os += __mobileNumber;
+                }
+                if (__email != "NULL") {
+                    os += " ";
+                    os += __email;
+                }
                 return os;
             }
 

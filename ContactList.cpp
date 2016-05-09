@@ -205,7 +205,7 @@ namespace ContactDatabase {
 
         // Menu options
         enum Option {
-            SEARCH=1, STRING, FIELD, MODE, DISPLAY, EDIT, EXIT, MAIN
+            SEARCH=1, STRING, FIELD, MODE, DISPLAY, EDIT, CLEAR, REPORT, EXIT, MAIN
         };
 
         // Search arguments
@@ -230,8 +230,11 @@ namespace ContactDatabase {
             std::cout << Option::FIELD << ") Select field to search" << std::endl;
             std::cout << Option::MODE << ") Select search mode" << std::endl;
             std::cout << Option::DISPLAY << ") Display & Sort Menu" << std::endl;
-            if (__tree->size() != stree.size())
+            if (__tree->size() != stree.size()) {
                 std::cout << Option::EDIT << ") Modify Contact" << std::endl;
+                std::cout << Option::CLEAR << ") Clear Search" << std::endl;
+                std::cout << Option::REPORT << ") Save Report" << std::endl;
+            }
             std::cout << Option::EXIT << ") Back" << std::endl;
             std::cout << Option::MAIN << ") <-- Main Menu" << std::endl;
 
@@ -323,6 +326,20 @@ namespace ContactDatabase {
                     }
                     else
                         std::cout << "Error: Row #" << row << " does not exist!" << std::endl;
+                }
+                break;
+
+                case (unsigned int) Option::CLEAR: if (vec.empty()) break;
+                {
+                    __tree->addTree(stree);
+                    vec.clear();
+                    displaySorted(stree, vec);
+                }
+                break;
+
+                case (unsigned int) Option::REPORT: if (vec.empty()) break;
+                {
+                    menuPrintReport(vec);
                 }
                 break;
 
@@ -605,39 +622,66 @@ namespace ContactDatabase {
             }
             else if (input == Contacts::NUM_FIELDS + 1) {
                 if (!flags) {
-                    std::cout << "\nPlease select at least one field to save.\n\n";
+                    std::cout << "\n!!!!! Please select at least one field to save !!!!!\n\n";
                 }
                 else {
                     // Save
-                    std::cout << "Enter a filename to save as: .csv will be appended to the end.\n";
+                    string savetype[] = {
+                            ".txt", ".csv"
+                    };
+                    std::cout << "Select the file type to save the report as:\n";
+                    std::cout << "1) TXT (Text Document)\n";
+                    std::cout << "2) CSV (Comma Separated Values)\n";
+                    int stype = getNumbers(1, 2);
+
+                    std::cout << "Enter a filename to save as: " << savetype[stype - 1] << " will be appended to the end.\n";
                     string fname = getWords();
-                    fname += ".csv";
+                    fname += savetype[stype - 1];
 
                     std::ofstream file(fname);
                     if (file) {
                         for (unsigned int i = 0; i <= Contacts::NUM_FIELDS; ++i) {
                             if (flags & FLAGS[i]) {
-                                file << Contacts::FIELD_NAMES[i] << ",";
+                                if (stype == 2) {
+                                    file << Contacts::FIELD_NAMES[i];
+                                    file << ",";
+                                }
+                                else {
+                                    file << padWidth(Contacts::FIELD_NAMES[i], 20);
+                                }
                             }
                         }
                         file << std::endl;
                         for (auto &e: vec) {
                             for (unsigned int i = 0; i < Contacts::NUM_FIELDS; ++i) {
                                 if (flags & FLAGS[i]) {
-                                    file << e.getField(i) << ",";
+                                    if (stype == 2) {
+                                        file << e.getField(i) << ",";
+                                    }
+                                    else {
+                                        file << padWidth(e.getField(i), 20);
+                                    }
+
                                 }
                             }
                             if (flags & FLAGS[13]) {
                                 for (unsigned int i = 0; i < e.getNumAffiliates(); ++i) {
                                     //file << e.getAffiliate(i).print(file) << ",";
-                                    e.getAffiliate(i).print(file);
-                                    file << ",";
+                                    if (stype == 2) {
+                                        file << e.getAffiliate(i).print();
+                                        file << ",";
+                                    }
+                                    else {
+                                        file << padWidth(e.getAffiliate(i).print(), 60);
+                                    }
                                 }
                             }
                             file << std::endl;
                         }
 
                         file.close();
+
+                        std::cout << "\n\n...... Report has been saved ......\n\n";
                     }
                 }
             }
