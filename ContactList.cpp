@@ -98,12 +98,16 @@ namespace ContactDatabase {
             }
             else {
                 std::cout << "4) Modify Contact" << std::endl;
-                std::cout << "5) Back" << std::endl;
-                std::cout << "6) <-- Main Menu" << std::endl;
+                std::cout << "5) Save Report" << std::endl;
+                std::cout << "6) Back" << std::endl;
+                std::cout << "7) <-- Main Menu" << std::endl;
             }
 
             //cin >> input;
-            input = getNumbers(1, 6);
+            if (!first)
+                input = getNumbers(1, 7);
+            else
+                input = getNumbers(1, 5);
 
             switch (input) {
                 case 1:
@@ -165,11 +169,16 @@ namespace ContactDatabase {
                     }
                     break;
 
-                case 5: if (!first) return; // Exit after first menu iteration
-                        else __gotomain = true;
+                case 5: if (first) __gotomain = true;
+                    else {
+                        menuPrintReport(vec);
+                        break;
+                    }
+
+                case 6: if (!first) return; // Exit after first menu iteration
                     break;
 
-                case 6: if (!first) __gotomain = true; break;
+                case 7: if (!first) __gotomain = true; break;
 
                 default: break;
             }
@@ -560,20 +569,80 @@ namespace ContactDatabase {
      * Is displayed as an option after sorting.
      */
     void ContactList::menuPrintReport(vector<ItemType> vec) {
-        enum Flags { FIRST=1, MIDDLE=2, LAST=4, COMPANY=8,
+        /*enum Flags { FIRST=1, MIDDLE=2, LAST=4, COMPANY=8,
         HOME=16, OFFICE=32, EMAIL=64, MOBILE=128, STREET=256,
-        CITY=512, STATE=1024, ZIP=2048, COUNTRY=4096, AFFILLIATES=8192 };
+        CITY=512, STATE=1024, ZIP=2048, COUNTRY=4096, AFFILLIATES=8192 };*/
+        static const unsigned int FLAGS [] {
+                1, 2, 4, 8,
+                16, 32, 64, 128, 256,
+                512, 1024, 2048, 4096, 8192
+        };
 
-        unsigned int flags = Flags::FIRST | Flags::LAST | Flags::MOBILE;
+        unsigned int flags = FLAGS[0] | FLAGS[2] | FLAGS[7];
         int input = 0;
-        while (input != Contacts::NUM_FIELDS + 1) {
+        while (input != Contacts::NUM_FIELDS + 2) {
+            std::cout << "\n------ Output Report Menu ------\n";
+            std::cout << "Fields with an 'X' next to them will be included in the report.\n";
+            std::cout << "Enter a number next to the field to include/exclude it.\n";
             for (unsigned int i = 0; i <= Contacts::NUM_FIELDS; ++i) {
                 if (i % 3 == 0) std::cout << std::endl;
-                string line = to_string(i) + ") " + Contacts::FIELD_NAMES[i];
-                if (flags & (1 << i)) line += "X";
-                else line += "_";
+                string line = to_string(i + 1) + ") " + Contacts::FIELD_NAMES[i];
+                if (flags & (1 << i)) line += ": X";
+                else line += ": _";
 
-                std::cout << padWidth(line, 18);
+                std::cout << padWidth(line, 20);
+            }
+            std::cout << std::endl;
+            std::cout << (Contacts::NUM_FIELDS + 2) << ") Save report\n";
+            std::cout << (Contacts::NUM_FIELDS + 3) << ") Back\n\n";
+
+            input = getNumbers(1, Contacts::NUM_FIELDS + 3);
+            input--;        // input is between 0 and num_fields + 1
+
+            if (input >= 0 and input <= Contacts::NUM_FIELDS) {
+                // field entry
+                flags = flags ^ FLAGS[input];
+            }
+            else if (input == Contacts::NUM_FIELDS + 1) {
+                if (!flags) {
+                    std::cout << "\nPlease select at least one field to save.\n\n";
+                }
+                else {
+                    // Save
+                    std::cout << "Enter a filename to save as: .csv will be appended to the end.\n";
+                    string fname = getWords();
+                    fname += ".csv";
+
+                    std::ofstream file(fname);
+                    if (file) {
+                        for (unsigned int i = 0; i <= Contacts::NUM_FIELDS; ++i) {
+                            if (flags & FLAGS[i]) {
+                                file << Contacts::FIELD_NAMES[i] << ",";
+                            }
+                        }
+                        file << std::endl;
+                        for (auto &e: vec) {
+                            for (unsigned int i = 0; i < Contacts::NUM_FIELDS; ++i) {
+                                if (flags & FLAGS[i]) {
+                                    file << e.getField(i) << ",";
+                                }
+                            }
+                            if (flags & FLAGS[13]) {
+                                for (unsigned int i = 0; i < e.getNumAffiliates(); ++i) {
+                                    //file << e.getAffiliate(i).print(file) << ",";
+                                    e.getAffiliate(i).print(file);
+                                    file << ",";
+                                }
+                            }
+                            file << std::endl;
+                        }
+
+                        file.close();
+                    }
+                }
+            }
+            else {
+                // back
             }
         }
     }
