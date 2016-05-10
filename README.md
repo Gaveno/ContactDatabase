@@ -16,7 +16,7 @@ The program consist of three main classes:
 
 
 ###Important Procedures:
-######void menuMain();
+#####void menuMain();
 The main program entry point. Has 6 options. Prompts the user for an integer in the range [1,6].
 
 1.	menuDisplay()		All options for displaying contacts  
@@ -26,59 +26,59 @@ The main program entry point. Has 6 options. Prompts the user for an integer in 
 5.	menuSave()		Save contacts to the same or a new file  
 6.	<program exit>	Exit point for the program
 
-######void menuDisplay(AVLTree &tree);
+#####void menuDisplay(AVLTree &tree);
 All options for displaying the contacts to the console. Can display all contacts with the default sort options, or the user can select which fields to sort by. Allows for primary and secondary sorting.
 Display has an option to jump to menuSearch() (see Fig.1)
 
-######void menuSearch();
+#####void menuSearch();
 All options for searching the database. The user can select to search in all fields, or an individual field. There are two search modes: Exact and Contains. When Exact is selected, the field being searched in must match the users search term exactly in length, order, and characters. Contains will look for an occurrence of that term inside the field.
 Search has a menu option to jump to menuDisplay() (see Fig.1)
 
-######void menuAddContact();
+#####void menuAddContact();
 Creates a new contact and opens the menuModifyContact() menu. If the contact has at least a first name entered, the new contact will be added to the current contact list. It will not be saved to a file until menuSave() is navigated and a file is selected.
 
-######void menuModifyContact(Contacts &cont);
+#####void menuModifyContact(Contacts &cont);
 Menu to modify a contacts fields. The user selects which field to modify and then enters the new field entry. Once the user is done they select the option to save and exit. Also allows deleting the contact from the list.
 Has an option to jump to menuListAffiliates() to add, delete, and modify the affiliates of the contact.
 
-######void menuListAffiliates(Contacts &cont);       
+#####void menuListAffiliates(Contacts &cont);       
 Lists out the current affiliates of a contact. Allows the user to select an existing affiliate for modification or deletion, as well as adding new affiliates.
 Jumps to menuModifyAffiliate() when an option is selected.
 
-######Contacts::Affiliates &menuModifyAffiliate(Contacts::Affiliates &aff);
+#####Contacts::Affiliates &menuModifyAffiliate(Contacts::Affiliates &aff);
 Menu to modify the fields of an affiliate. Once the user has changed the fields to their liking they can save the contact and return to the previous menu, or permanently delete the affiliate from the contact.
 
-######void menuPrintReport(vector<ItemType> vec);
+#####void menuPrintReport(vector<ItemType> vec);
 When the user performs a search or displays the contact list in some way, they will then have the option to jump to this menu. The user can select which fields they would like to include in the report and then choose to save the report as either a csv (comma separated values) or txt (ASCII text document) file.
 
-######void menuLoad();
+#####void menuLoad();
 Allows the user to load a different contact database then the default loaded. The file must be in the same directory as the program if only typing the file’s name.
 
-######void menuSave();
+#####void menuSave();
 The save menu prompts the user to either save to the same file name already in use, or save as a new name creating a new file (or overwriting if it already exists).  
 
-######void loadContacts(std::string fname);
+#####void loadContacts(std::string fname);
 The legwork of the load menu. This method actually opens and reads in a file to the contacts list. If it reaches a corrupt contact it will stop loading and display a message letting the user know how many contacts were successfully loaded.
 
-######friend std::ostream &operator<<(std::ostream &os, const ContactList &cl);  
+#####friend std::ostream &operator<<(std::ostream &os, const ContactList &cl);  
 While not actually a method of any class, this friend overloaded operator allows streaming from a contact list into an out stream object. The output format matches the database format for loading contacts.
 
-######friend std::istream &operator>>(std::istream &is, ContactList &cl);
+#####friend std::istream &operator>>(std::istream &is, ContactList &cl);
 Another friend function, this one is for loading a contact list from an in stream object. 
 
-######std::vector<ItemType> &displaySorted(&tree, std::vector<ItemType> &vec,
-######                FieldSearch field = FieldSearch::FIRSTNAME,
-######                FieldSearch second = FieldSearch::LASTNAME);
+#####std::vector<ItemType> &displaySorted(&tree, std::vector<ItemType> &vec,
+#####                FieldSearch field = FieldSearch::FIRSTNAME,
+#####                FieldSearch second = FieldSearch::LASTNAME);
 The main method and algorithm for sorting the contact list. Takes the tree to sort from and copies the contents into a vector. It sorts the first field with the std::sort algorithm and then uses a bubble sort algorithm to sort by the second field. The vector is passed by reference so that it can be used for saving reports with the same sorted order.
 
-######AVLTree &addTree(AVLTree &tree, std::string item = "NULL",
-######                                     FieldSearch field = FieldSearch::ALL,
-######                                     SearchMode mode = SearchMode::EXACT);
+#####AVLTree &addTree(AVLTree &tree, std::string item = "NULL",
+#####                                     FieldSearch field = FieldSearch::ALL,
+#####                                     SearchMode mode = SearchMode::EXACT);
 This is the main method for searching. A reference to a secondary tree is passed in and every element from the calling tree matching the field with the passed in mode will be added to the passed in tree.
 
-######std::vector<ItemType> &addVector(std::vector<ItemType> &vec, std::string item = "NULL",
-######                                     FieldSearch field = FieldSearch::ALL,
-######                                     SearchMode mode = SearchMode::EXACT);
+#####std::vector<ItemType> &addVector(std::vector<ItemType> &vec, std::string item = "NULL",
+#####                                     FieldSearch field = FieldSearch::ALL,
+#####                                     SearchMode mode = SearchMode::EXACT);
 Similarly to addTree(), this method adds every element of the calling tree to the passed in vector matching the search criteria. This is primarily used for sorting purposes.
  
 ###Input Requirements:
