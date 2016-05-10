@@ -120,7 +120,7 @@ namespace ContactDatabase {
                 );
         std::string padWidth(string str, unsigned int w);
 
-        string getWords();
+        string getWords(unsigned int maxlength = 25);
         unsigned int getNumbers(int from, int to);
 
         // Save type 0 is __lastFile for filename 1 is for new name

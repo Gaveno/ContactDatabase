@@ -134,7 +134,7 @@ namespace ContactDatabase {
         unsigned int getNumAffiliates() const { return __affiliates.size(); }
         const Affiliates &getAffiliate(unsigned int index) const;
         const string &operator[](unsigned int index) const;
-        void printNames(FieldSearch f1 = FieldSearch::FIRSTNAME, FieldSearch f2 = FieldSearch::LASTNAME) const;
+        string printNames(FieldSearch f1 = FieldSearch::FIRSTNAME, FieldSearch f2 = FieldSearch::LASTNAME) const;
         bool searchFor(string &item, FieldSearch field = FieldSearch::ALL, SearchMode mode = SearchMode::EXACT) const;
 
         //  Accessors - Non-Constant
@@ -190,6 +190,7 @@ namespace ContactDatabase {
         // Private functions
         string getWordN(string str, unsigned int n, char c = ' ', unsigned int pos = 0);
         int getNumChars(string str, char c);
+        std::string padWidth(string str, unsigned int w) const;
     };
 
     /*class SortContacts {

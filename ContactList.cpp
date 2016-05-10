@@ -269,7 +269,7 @@ namespace ContactDatabase {
                 case (unsigned int)Option::STRING: {
                     std::cout << "\nEnter a word or phrase to search for:\n";
                     //getline(cin, item, '\n');
-                    item = getWords();
+                    item = getWords(30);
                 }
                 break;
 
@@ -286,7 +286,7 @@ namespace ContactDatabase {
                     //cin >> input;
                     input = getNumbers(0, Contacts::NUM_FIELDS + 1);
                     if (input == (Contacts::NUM_FIELDS + 1)) {
-                        field == FieldSearch::ALL;
+                        field = FieldSearch::ALL;
                     }
                     else {
                         input--;
@@ -410,7 +410,9 @@ namespace ContactDatabase {
                 std::cout << "Please enter a new entry for field: " << cont.FIELD_NAMES[input] << std::endl;
                 string entry;
                 //cin >> entry;
-                entry = getWords();
+                unsigned int L = 25;
+                if (cont.FIELD_NAMES[input] == "Email") L = 30;
+                entry = getWords(L);
                 while (entry == "NULL") {
                     std::cout << "Cannot be 'NULL'. Please re-enter:\n";
                     entry = getWords();
@@ -428,7 +430,7 @@ namespace ContactDatabase {
                 else if (input == 14) {
                     // delete contact, make sure!
                     std::cout << "Are you sure you want to delete: ";
-                    cont.printNames();
+                    std::cout << cont.printNames();
                     std::cout << "?\nType 'YES' exactly as shown to delete this contact\nThis cannot be undone!\n";
                     string entry;
                     //cin >> entry;
@@ -465,7 +467,7 @@ namespace ContactDatabase {
         while (input != SAVE) {
             std::cout << "\n------ Affiliates ------\n\n";
             for (unsigned int i = 0; i < cont.getNumAffiliates(); ++i) {
-                std::cout << "#" << (i + 1) << " ";
+                std::cout << "#" << (i + 1) << " - ";
                 std::cout << cont.getAffiliate(i);
             }
             std::cout << std::endl;
@@ -501,7 +503,7 @@ namespace ContactDatabase {
                 break;
 
                 case DELETE: {
-                    std::cout << "\nEnter the row number of the affiliate to modify:\n";
+                    std::cout << "\nEnter the row number of the affiliate to delete permanently:\n";
                     int sel = getNumbers(1, cont.getNumAffiliates() + 1);
                     sel--;
 
@@ -510,8 +512,11 @@ namespace ContactDatabase {
                     string confirm = getWords();
 
                     if (confirm == "YES") {
+                        std::cout << "\n\n!!!!! Affiliate Deleted !!!!!!\n\n";
                         cont.removeAffiliate(cont.getAffiliate(sel));
                     }
+                    else
+                        std::cout << "\n\n..... Affiliate NOT Deleted .....\n\n";
                 }
                 break;
 
@@ -566,7 +571,9 @@ namespace ContactDatabase {
             if (input != SAVE) {
                 std::cout << "Current Entry: " << current << std::endl;
                 std::cout << "Please enter the replacement entry:\n";
-                string entry = getWords();
+                unsigned int L = 25;
+                if (input == EMAIL) L = 30;
+                string entry = getWords(L);
 
                 switch (input) {
                     case FIRST: aff.setFirstName(entry); break;
@@ -839,28 +846,49 @@ namespace ContactDatabase {
         }
 
         std::cout << "------------------ Contact List ------------------" << std::endl;
-        std::cout << setw(8) << "Row" << setw(14) << "First Name";
-        std::cout << setw(14) << "Middle Name" << setw(14) << "Last Name";
+        //std::cout << setw(8) << "Row" << setw(14) << "First Name";
+        //std::cout << setw(14) << "Middle Name" << setw(14) << "Last Name";
+        std::cout << padWidth("Row", 8);
+        std::cout << padWidth("First Name", 14);
+        std::cout << padWidth("Middle Name", 14);
+        std::cout << padWidth("Last Name", 14);
         if (field != FieldSearch::FIRSTNAME && field != FieldSearch::ALL &&
                 field != FieldSearch::MIDDLENAME && field != FieldSearch::LASTNAME) {
-            std::cout << setw(17) << Contacts::FIELD_NAMES[(unsigned) field];
+            //std::cout << setw(17) << Contacts::FIELD_NAMES[(unsigned) field];
+            std::cout << padWidth(Contacts::FIELD_NAMES[(unsigned) field], 17);
         }
         if (second != FieldSearch::FIRSTNAME && second != FieldSearch::ALL &&
                 second != FieldSearch::MIDDLENAME && second != FieldSearch::LASTNAME) {
-            std::cout << setw(17) << Contacts::FIELD_NAMES[(unsigned) second];
+            //std::cout << setw(17) << Contacts::FIELD_NAMES[(unsigned) second];
+            std::cout << padWidth(Contacts::FIELD_NAMES[(unsigned) second], 17);
         }
         std::cout << std::endl;
 
         int i = 1;
-        for (auto &e : vec) {
-            string o = "#";
-            o += to_string(i);
-            o += " -";
-            std::cout << setw(8) << o;
-            e.printNames(field, second);
+        for (auto it = vec.begin(); it != vec.end(); ++it) {
+            string _out = "#";
+            _out += to_string(i);
+            _out += " -";
+            _out = padWidth(_out, 8);
+
+            _out += it->printNames(field, second);
+            //std::cout << it->getFirstName();
+            std::cout << _out;
             std::cout << std::endl;
             ++i;
         }
+        /*for (unsigned int i = 1; i < vec.size(); ++i) {
+            string __out = "#";
+            std::cout << __out << std::endl;
+            __out += to_string(i);
+            std::cout << __out << std::endl;
+            __out += " -";
+            std::cout << __out << std::endl;
+            __out = padWidth(__out, 8);
+            std::cout << __out << std::endl;
+            __out += vec[i - 1].printNames(field, second);
+            std::cout << __out << std::endl;
+        }*/
 
         return vec;
     }
@@ -896,10 +924,12 @@ namespace ContactDatabase {
         }
     }
 
-    string ContactList::getWords() {
+    string ContactList::getWords(unsigned int maxlength) {
         string word;
         getline(cin, word, '\n');
-        while (word.size() < 1) {
+        while (word.size() < 1 || word.size() > maxlength) {
+            if (word.size() > maxlength)
+                std::cout << "\nLength cannot be greater than " << maxlength << " characters.\nPlease re-enter:\n";
             getline(cin, word, '\n');
         }
 

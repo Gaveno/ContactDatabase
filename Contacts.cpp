@@ -6,7 +6,7 @@
 #include <iostream>
 #include <vector>
 #include <sstream>
-#include <iomanip>
+//#include <iomanip>
 #include "Contacts.h"
 #include "ContactsExceptions.h"
 
@@ -169,23 +169,30 @@ namespace ContactDatabase {
         }
     }
 
-    void Contacts::printNames(FieldSearch f1, FieldSearch f2) const {
-        std::cout << std::setw(14) << getFirstName();
+    string Contacts::printNames(FieldSearch f1, FieldSearch f2) const {
+        string pout;
+        pout = padWidth(getFirstName(), 14);
+        //std::cout << std::setw(14) << getFirstName();
         if (getMiddleName() != "NULL")
-            std::cout << std::setw(14) << getMiddleName();
+            pout += padWidth(getMiddleName(), 14);
+            //std::cout << std::setw(14) << getMiddleName();
         if (getLastName() != "NULL")
-            std::cout << std::setw(14) << getLastName();
+            pout += padWidth(getLastName(),14 );
+            //std::cout << std::setw(14) << getLastName();
         // Print additional fields as neccessary
         if (f1 != FieldSearch::FIRSTNAME && f1 != FieldSearch::LASTNAME
             && f1 != FieldSearch::MIDDLENAME) {
             if (getField((unsigned) f1) != "NULL")
-                std::cout << std::setw(17) << getField((unsigned) f1).substr(0, 15);
+                pout += padWidth(getField((unsigned) f1).substr(0, 15), 17);
+                //std::cout << std::setw(17) << getField((unsigned) f1).substr(0, 15);
         }
         if (f2 != FieldSearch::FIRSTNAME && f2 != FieldSearch::LASTNAME
             && f2 != FieldSearch::MIDDLENAME) {
             if (getField((unsigned) f2) != "NULL")
-                std::cout << std::setw(17) << getField((unsigned) f2).substr(0, 15);
+                pout += padWidth(getField((unsigned) f2).substr(0, 15), 17);
+                //std::cout << std::setw(17) << getField((unsigned) f2).substr(0, 15);
         }
+        return pout;
     }
 
     bool Contacts::searchFor(string &item, FieldSearch field, SearchMode mode) const {
@@ -262,7 +269,7 @@ namespace ContactDatabase {
             }
             else {
                 // mode is CONTAINS
-                int p = getField((unsigned int)field).find(item);
+                unsigned int p = getField((unsigned int)field).find(item);
                 return (p != string::npos);
             }
         }
@@ -284,7 +291,7 @@ namespace ContactDatabase {
             else {
                 // Contains
                 for (unsigned int i = 0; i < __affiliates.size(); ++i) {
-                    int p = __affiliates[i].getFirstName().find(item);
+                    unsigned int p = __affiliates[i].getFirstName().find(item);
                     if (p != string::npos) {
                         contains = true;
                     }
@@ -356,7 +363,7 @@ namespace ContactDatabase {
     }
 
     // Friend functions
-    std::ostream& operator<<(std::ostream &os, const Contacts::Affiliates &aff) {
+    std::ostream& operator<<(std::ostream &os, const ContactDatabase::Contacts::Affiliates &aff) {
         os << aff.getFirstName() << " " << aff.getLastName();
 
         if (aff.getMobilePhone() != "NULL" || aff.getEmail() != "NULL") {
@@ -369,7 +376,7 @@ namespace ContactDatabase {
         return os;
     }
 
-    std::ostream &operator<<(std::ostream &os, const Contacts &contact) {
+    std::ostream &operator<<(std::ostream &os, const ContactDatabase::Contacts &contact) {
         for (unsigned int i = 0; i < (9 - std::to_string(contact.getID()).size()); ++i)
             os << "0";
         os << contact.getID() << endl;
@@ -392,7 +399,7 @@ namespace ContactDatabase {
         return os;
     }
 
-    std::istream &operator>>(std::istream &is, Contacts &contact) {
+    std::istream &operator>>(std::istream &is, ContactDatabase::Contacts &contact) {
         contact.loadFromStream(is);
 
         return is;
@@ -425,15 +432,15 @@ namespace ContactDatabase {
         // Appends @email.com
         // to the end if it's not present already
         string newemail;
-        bool contains = false;
-        for (unsigned int i = 0; i < email.size(); ++i) {
+        int contains = getNumChars(email, '@');
+        /*for (unsigned int i = 0; i < email.size(); ++i) {
             if (email[i] == '@') contains = true; break;
-        }
+        }*/
         if (!contains) {
             newemail = email + "@email.com";
+            email = newemail;
         }
 
-        email = newemail;
         return email;
     }
 
@@ -445,8 +452,8 @@ namespace ContactDatabase {
         //if (is.eof()) std::cout << "Warning... Empty contact file." << std::endl;
         //if (line.size() != 9) std::cout << "Warning... Corrupt contact file." << std::endl;
         //std::cout << line.size();
-        //if (line.size() != 9 && line.size() != 0) throw ExCorruptFile("ID of contact incorrect size.");
-        while (!is.eof() && line[0] != '|' /*&& line.size() == 9*/ && line[0] != ' ') {
+        if (line.size() > 9 && line.size() != 0) throw ExCorruptFile("ID of contact incorrect size.");
+        while (!is.eof() && line[0] != '|' && line[0] != ' ') {
             bool contactfound = false;
             while (!contactfound && !is.eof()) {
                 if (is.eof()) return is;
@@ -462,6 +469,10 @@ namespace ContactDatabase {
             if (__id > __idGen) __idGen = (__id + 1);
             for (unsigned int i = 0; i < Contacts::NUM_FIELDS; ++i) {
                 getline(is, line);
+                unsigned int L = 25;    ;// maximum allowed length
+                if (Contacts::FIELD_NAMES[i] == "Email") L = 30;
+                if (line.size() > L && line.size() != 0)
+                    throw ExCorruptFile("Contact field greater than maximum size. Max " + to_string(L) + " characters.");
                 if (line.size() > 0)
                     getField(i) = line;
                 else
@@ -471,6 +482,7 @@ namespace ContactDatabase {
             //Affiliates
             getline(is, line);
             while (line[0] != '|' && !is.eof()) {
+                if (line.size() > 105) throw ExCorruptFile("Affiliate line greater than allowed length. Max 105 characters total.");
                 if (getNumChars(line, ',')) {
                     if (getNumChars(line, ';') == 0) {
                         std::cout << "Contact: " << getID() << " " << getFirstName() << " ";
@@ -548,5 +560,15 @@ namespace ContactDatabase {
         }
 
         return n;
+    }
+
+    std::string Contacts::padWidth(string str, unsigned int w) const {
+        std::string temp;
+        temp = str;
+        for (unsigned int i = str.size(); i < w; ++i) {
+            temp += " ";
+        }
+
+        return temp;
     }
 }
