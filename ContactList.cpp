@@ -457,9 +457,9 @@ namespace ContactDatabase {
     }
 
     /*
-         * List Contact's Affiliates Menu
-         * Menu to select an affiliate
-         */
+     * List Contact's Affiliates Menu
+     * Menu to select an affiliate
+     */
     void ContactList::menuListAffiliates(Contacts &cont) {
         int input = 0;
         enum Options { ADD=1, MODIFY, DELETE, SAVE };
