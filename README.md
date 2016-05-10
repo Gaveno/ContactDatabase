@@ -120,16 +120,16 @@ ASCII text formatted file with each field on a new line. Each contact starts wit
 
 **Output Report Menu** – [1, 16] integer or float. Anything after a decimal will be ignored. No words or non-number characters will be accepted.
 
-1.	– 14. Turn a field on or off. If an ‘X’ is next to the field, it will be included in the report.
-15. Save Report – Prompts the user for a file type, then a filename to save as. The file can be a text file or comma separated values file. Filename can be any combination of characters (no promises something won’t crash). The appropriate file extension will be appended to the end. Accepted length [1, 25]
-16. Back – Goes back to the previous menu.
+- 1.	– 14. Turn a field on or off. If an ‘X’ is next to the field, it will be included in the report.
+- 15. Save Report – Prompts the user for a file type, then a filename to save as. The file can be a text file or comma separated values file. Filename can be any combination of characters (no promises something won’t crash). The appropriate file extension will be appended to the end. Accepted length [1, 25]
+- 16. Back – Goes back to the previous menu.
 
 **Modify Contact Menu** – [1, 16] integer or float. Anything after a decimal will be ignored. No words or non-number characters will be accepted. Displays current contact information and lets the user alter any field.
 
-1.	– 13. Select a field to modify. Prompts the user for a new entry and returns to this menu. Accepted length [1, N]. For email N = 30, every other field N = 25.
-14. Affiliates – Opens affiliates menu to add, remove, or modify an affiliate.
-15. Remove Contact – Permanently delete a contact from the contact list. The user must type “YES” in all caps without quotes to proceed with deletion, otherwise a message will be displayed that the contact was not deleted.
-16. Save and Exit – Saves the contact and returns to the previous menu.
+- 1.	– 13. Select a field to modify. Prompts the user for a new entry and returns to this menu. Accepted length [1, N]. For email N = 30, every other field N = 25.
+- 14. Affiliates – Opens affiliates menu to add, remove, or modify an affiliate.
+- 15. Remove Contact – Permanently delete a contact from the contact list. The user must type “YES” in all caps without quotes to proceed with deletion, otherwise a message will be displayed that the contact was not deleted.
+- 16. Save and Exit – Saves the contact and returns to the previous menu.
 
 **Affiliates Menu** – [1, 4] integer or float. Anything after a decimal will be ignored. No words or non-number characters will be accepted. Options for modifying the affiliates of a contact.
 
