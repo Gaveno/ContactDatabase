@@ -147,6 +147,29 @@ ASCII text formatted file with each field on a new line. Each contact starts wit
 5.	Save & Exit – Saves all affiliate entries and returns to the list affiliates menu.
 
 ###Output Requirements:
+There are three ways the contacts are output.
+1)	To the console – The user selects sort options (or uses the default settings) and displays the contacts in rows with an associated row number to the left. The contact fields are displayed in the format: “#<row number> <first name> <middle name> <last name> <additional sort field 1> <additional sort field 2>”. For instance with the default sort settings, a contact could be shown as: “#1 Adob E. Zum” without quotation marks.
+2)	To a file as a report – After the contacts have been displayed at least once either by sorting or searching, the menu option Save Report will become available. The Save Report menu will ask the user to select which fields to save to save, and will error if the user does not select any fields at the time of saving the report. The report has two file format options. Standard ASCII Text Document (*.txt) and Comma Separated Values (*.csv). The txt document option will output the contact list with the selected fields with aligned spaces, one contact per row. The csv option will use comma’s to separate each field in the report which allows easy readability in Microsoft Excel. 
+3)	To a file as a database – The final option is using the Save menu to save to a file as a contact database list. This format is used to read into the contact database app. Each contact starts with an ID number that will be padded with leading zeroes to have a length of 9 digits, (reading does not require exactly nine digits, but cannot be longer than 9) followed by each field having its own line. The format is:
+•	<ID Number>
+•	<First Name>
+•	<Middle Name>
+•	<Last Name>
+•	<Company Phone>
+•	<Home Phone>
+•	<Office Phone>
+•	<Email>
+•	<Mobile Number>
+•	<Street Address>
+•	<City>
+•	<State>
+•	<Zip Code>
+•	<Country>
+•	<Affiliate 0>
+•	<Affiliate 1>
+•	… <Affiliate N-1>
+•	<Affiliate N>
+
 
 ###Problem Solutions:
 One problem I wanted to completely tackle early on was (near) perfect input from the user. I first began with simple cin >> statements, but they can easily be broken by decimal numbers when expecting integers, spaces between words when wanting to get an entire line, etc. I created to helper functions to make input from the user much simpler for all the menus: getWords(int) and getNumbers(int, int). The former will not let the user proceed without entering a string within the designating length (default 25). The latter takes the bounds as inclusive arguments and by using try and catch blocks, tries to convert the input into an integer using stoi and if it fails (because they entered non number characters) it will catch the exception thrown and display an error message to the user reminding them of the bounds they must stay within. If the user enters a decimal it is simply converted to an integer and anything after the decimal place is lost. Using these helper functions I have not found a way to break the program from user input. Additional problems detailed below.
